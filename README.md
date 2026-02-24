@@ -27,6 +27,12 @@ Los workflows incluidos no son ejemplos aislados, sino soluciones estructuradas 
 
 ---
 
+## 📂 Estructura del repositorio
+
+Cada carpeta dentro de este repositorio representa un proyecto independiente con su documentación correspondiente en su interior.
+
+---
+
 ## 🛠 Tecnologías y herramientas utilizadas
 - n8n
 - Docker
@@ -36,3 +42,36 @@ Los workflows incluidos no son ejemplos aislados, sino soluciones estructuradas 
 - Transformación de JSON
 - JavaScript en Code Nodes
 - Manejo de credenciales y variables de entorno
+
+---
+
+## 🔄 Tipos de automatizaciones incluidas
+- Extracción automática de contenido web
+- Orquestación de múltiples agentes IA
+- Unificación y transformación de outputs
+- Asignación de etiquetas y estructuración semántica
+- Integración con backends REST
+- Procesamiento y limpieza avanzada de texto
+
+---
+
+## 🎯 Objetivo profesional
+Este repositorio forma parte de mi portfolio técnico como desarrollador orientado a:
+- Automatización de procesos
+- Integración de sistemas
+- Ingeniería de workflows con IA
+- Backend + Automatización
+- Diseño de pipelines inteligentes
+
+---
+
+##⚙️ Cómo ejecutar los workflows
+1. Clonar el repositorio
+2. Importar el archivo .json en una instancia de n8n
+3. Configurar credenciales necesarias (API keys, endpoints, etc.)
+4. Ejecutar el workflow desde la interfaz de n8n
+
+---
+
+## ✍️ Autor
+Desarrollado por Javier M. Debórtoli como práctica para el aprendizaje de n8n, IA, flujos de trabajo y automatizaciones.
