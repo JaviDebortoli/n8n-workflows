@@ -39,25 +39,25 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
       "position": [
-        208,
-        0
+        -496,
+        144
       ],
-      "id": "736b7a04-95bb-4f74-8b04-000aa049f9b6",
+      "id": "341277a3-56e3-4aa7-89d8-91320d11b9b9",
       "name": "Filtrar solicitudes sin correo"
     },
     {
       "parameters": {
         "content": "## Google Sheet\nSolicitudes",
         "height": 288,
-        "width": 400
+        "width": 416
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -48,
-        -112
+        -768,
+        32
       ],
       "typeVersion": 1,
-      "id": "fe8dbe2c-1b0a-46d5-b9fa-3cd449979b7f",
+      "id": "cd8dd56f-ba85-4d89-8203-53fcbc6ad2d2",
       "name": "Sticky Note"
     },
     {
@@ -70,32 +70,18 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        944,
-        -16
+        240,
+        128
       ],
-      "id": "47c7dbcf-b19e-4289-baba-e0cf0e572a33",
+      "id": "606cfd9a-5631-4bc0-8841-e260a34b6b11",
       "name": "Actualizacion de camisetas",
       "webhookId": "70582349-a8aa-4c9f-b736-1228b68869f5",
       "credentials": {
         "gmailOAuth2": {
-          "id": "7a8S6FxpCqxli1GS",
-          "name": "Gmail account"
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
         }
       }
-    },
-    {
-      "parameters": {
-        "aggregate": "aggregateAllItemData",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        736,
-        -16
-      ],
-      "id": "41f291ac-a122-4bb1-ab4f-619bd3f4b55e",
-      "name": "Aggregate"
     },
     {
       "parameters": {
@@ -106,11 +92,11 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        704,
-        -144
+        0,
+        0
       ],
       "typeVersion": 1,
-      "id": "c9c82eab-18bd-455a-903d-1471956c3837",
+      "id": "bbc53e7b-f611-47df-999a-0f9e597dcb2b",
       "name": "Sticky Note4"
     },
     {
@@ -142,15 +128,15 @@
       "type": "n8n-nodes-base.googleSheetsTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        -704,
+        144
       ],
-      "id": "bdab5bb7-f85c-451b-8bb6-4016b07f2c1d",
+      "id": "1a510211-6f6c-4bfa-ba67-518f9e7bc6c1",
       "name": "Nueva solicitud recibida",
       "credentials": {
         "googleSheetsTriggerOAuth2Api": {
-          "id": "qx7RfK45fW8s9LbX",
-          "name": "Google Sheets Trigger account"
+          "id": "I8P1qvNzVbEkgA81",
+          "name": "javidebortoli@gmail.com"
         }
       }
     },
@@ -161,10 +147,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        432,
-        0
+        -272,
+        144
       ],
-      "id": "01f05f5b-5833-4f73-a113-9a202a506398",
+      "id": "6cef0696-86dc-4337-b221-ba6ca6c00d38",
       "name": "Recorrer solicitudes"
     },
     {
@@ -176,60 +162,17 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        736,
-        320
+        32,
+        448
       ],
-      "id": "56b86891-901a-45b0-9388-e22a5486b15d",
+      "id": "4bb163fb-d481-44e0-906a-89e1b0721f85",
       "name": "Obtener inventario",
       "credentials": {
         "postgres": {
-          "id": "UMxekAHY1NfrjWRP",
-          "name": "Postgres Neon"
+          "id": "3kn8vMJBVz7CHYhF",
+          "name": "Neon.com"
         }
       }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "ef026ade-5443-4baf-829c-2d56f2aca1e1",
-              "leftValue": "={{ $json.in_stock }}",
-              "rightValue": 0,
-              "operator": {
-                "type": "number",
-                "operation": "exists",
-                "singleValue": true
-              }
-            },
-            {
-              "id": "28ba3ef1-032b-4ff4-8347-fbd79a393de8",
-              "leftValue": "={{ $json.in_stock }}",
-              "rightValue": 0,
-              "operator": {
-                "type": "number",
-                "operation": "gt"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        944,
-        320
-      ],
-      "id": "deb704c4-e143-415f-87e2-32d2d19a5e4d",
-      "name": "Corroborar stock"
     },
     {
       "parameters": {
@@ -254,10 +197,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1152,
-        304
+        448,
+        448
       ],
-      "id": "33092bf9-2fce-41dd-98e1-6e32f620e010",
+      "id": "40b826e1-de39-4ec4-8eb7-cac9e6cfae81",
       "name": "Actualizar inventario"
     },
     {
@@ -332,15 +275,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1360,
-        304
+        656,
+        448
       ],
-      "id": "d8bb9beb-fc7e-4816-8d6f-7ac70e0042a0",
+      "id": "7711a507-19a9-4be1-818e-8d642b2d51e0",
       "name": "Update rows in a table",
       "credentials": {
         "postgres": {
-          "id": "UMxekAHY1NfrjWRP",
-          "name": "Postgres Neon"
+          "id": "3kn8vMJBVz7CHYhF",
+          "name": "Neon.com"
         }
       }
     },
@@ -353,11 +296,11 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        704,
-        208
+        0,
+        352
       ],
       "typeVersion": 1,
-      "id": "62807bec-430f-4d22-94c8-c6312e0c503b",
+      "id": "c6173a6d-8905-42ea-8df4-53eb4036b29c",
       "name": "Sticky Note1"
     },
     {
@@ -476,15 +419,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1568,
-        304
+        864,
+        448
       ],
-      "id": "35db0dac-bcf3-49ae-b388-4b4f61a7e1c9",
+      "id": "832ab290-0843-4bde-8d22-814327e92080",
       "name": "Actualizar sheets respuestas",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "EMPaJXRHrvtzjV6F",
-          "name": "Google Sheets account"
+          "id": "Lxd614Fq9LGbcGwq",
+          "name": "javidebortoli@gmail.com"
         }
       }
     },
@@ -604,49 +547,106 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1152,
-        512
+        448,
+        656
       ],
-      "id": "1e5e943c-10b1-492b-bbce-8ea12180c9af",
+      "id": "cd7e01c0-9d28-4f9e-85f8-9c2428a563f6",
       "name": "Respuestas sin stock",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "EMPaJXRHrvtzjV6F",
-          "name": "Google Sheets account"
+          "id": "Lxd614Fq9LGbcGwq",
+          "name": "javidebortoli@gmail.com"
         }
       }
     },
     {
       "parameters": {
         "content": "",
-        "height": 208,
-        "width": 672,
+        "height": 224,
+        "width": 688,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1040,
-        496
+        336,
+        640
       ],
       "typeVersion": 1,
-      "id": "b5cac005-2100-477a-8458-0321f696f5b2",
+      "id": "5fd1db33-48bc-40a3-aadf-7a013f2cc17f",
       "name": "Sticky Note2"
     },
     {
       "parameters": {
         "content": "## Google Sheet\nVerificacion",
         "height": 288,
-        "width": 192,
+        "width": 208,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1520,
-        208
+        816,
+        352
       ],
       "typeVersion": 1,
-      "id": "866d4dc7-7c69-4594-a42c-cc836f1802a0",
+      "id": "7b737733-735a-47b7-af54-d1fe14c79fdb",
       "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        32,
+        128
+      ],
+      "id": "a77799d4-a87c-48ca-ab16-9aef02a3c44a",
+      "name": "Unir solicitudes"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ef026ade-5443-4baf-829c-2d56f2aca1e1",
+              "leftValue": "={{ $json.in_stock }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "28ba3ef1-032b-4ff4-8347-fbd79a393de8",
+              "leftValue": "={{ $json.in_stock }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        240,
+        448
+      ],
+      "id": "56b06f52-1ec6-47ef-9ea1-32e8384fcd76",
+      "name": "¿Hay suficiente inventario?"
     }
   ],
   "pinData": {},
@@ -656,17 +656,6 @@
         [
           {
             "node": "Recorrer solicitudes",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aggregate": {
-      "main": [
-        [
-          {
-            "node": "Actualizacion de camisetas",
             "type": "main",
             "index": 0
           }
@@ -688,7 +677,7 @@
       "main": [
         [
           {
-            "node": "Aggregate",
+            "node": "Unir solicitudes",
             "type": "main",
             "index": 0
           }
@@ -706,25 +695,7 @@
       "main": [
         [
           {
-            "node": "Corroborar stock",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Corroborar stock": {
-      "main": [
-        [
-          {
-            "node": "Actualizar inventario",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Respuestas sin stock",
+            "node": "¿Hay suficiente inventario?",
             "type": "main",
             "index": 0
           }
@@ -774,6 +745,35 @@
           }
         ]
       ]
+    },
+    "Unir solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Actualizacion de camisetas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay suficiente inventario?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar inventario",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respuestas sin stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -782,11 +782,11 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "66eddd3b-d5c9-4e39-b0aa-3f43b578727c",
+  "versionId": "29a934e7-2e6a-4bc7-916d-4faa4208f8c7",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "97e108128000929ae2fc7a9b75d409f0298caa63e1295a79654da3fe32fc8583"
+    "instanceId": "c8b1efddd52ba851d4d9b0653ca505f27c13da4dadf06e758dd070e0ef6d5d64"
   },
-  "id": "nwIheSGBCNosO7Lf",
+  "id": "4tYQSsvEcSvPInnj",
   "tags": []
 }
