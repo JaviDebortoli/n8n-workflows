@@ -22,9 +22,11 @@ Los workflows incluidos no son ejemplos aislados, sino soluciones estructuradas 
 - Transformación avanzada de datos
 - Procesamiento estructurado de texto
 - Automatización basada en eventos
-- Cada proyecto dentro del repositorio incluye:
+Cada proyecto dentro del repositorio incluye:
 - Archivo .json exportado desde n8n
-
+- Documentación específica del proyecto (README.md)
+- Diagrama BPMN 2.0 del proceso de negocio
+ 
 ---
 
 ## 📂 Estructura del repositorio
