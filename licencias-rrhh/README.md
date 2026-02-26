@@ -1,0 +1,1 @@
+#  Gestión automática de licencias

@@ -1,0 +1,1029 @@
+{
+  "name": "Licencias",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "98c890ef-2ea9-4358-819d-fa225bc9f26d",
+              "leftValue": "={{ $json.startDate.toDateTime() }} ",
+              "rightValue": "={{ $now.plus(7, 'days') }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        -16
+      ],
+      "id": "52e77480-a080-4ae6-975b-6fcddf30612c",
+      "name": "¿Tiene 7 dias de anticipación?"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"email\": \"{{ $json.data.email }}\",\n  \"fullName\": \"{{ $json.data.fullName }}\",\n  \"startDate\": \"{{ $json.data.startDate }}\",\n  \"endDate\": \"{{ $json.data.endDate }}\",\n  \"comments\": \"{{ $json.data.comments }}\",\n  \"daysRequested\": {{ \n    (\n      $json.data.endDate.toDateTime()\n      -\n      $json.data.startDate.toDateTime()\n    )\n    /\n    (1000 * 60 * 60 * 24)\n  }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -448,
+        -16
+      ],
+      "id": "0151ceac-7645-4091-b414-c8fe57c79656",
+      "name": "Extrar variables y cantidad de dias"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"ok\": false,\n  \"message\": \"La licencia solicitada no cumple con el requisito de haber sido pedida con un plazo igual o mayor a 7 dias de anticipacion.\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        512
+      ],
+      "id": "b40f8a76-399b-4121-8287-3b852335fa9d",
+      "name": "Añadir error por tiempo de solicitud"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5f19086d-a59c-41e3-8aaf-adcc9c836f73",
+              "leftValue": "={{ $json.daysRequested }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -16,
+        -112
+      ],
+      "id": "cd712b52-ea2a-48a1-9b72-f0aa69aec8fb",
+      "name": "¿La cantidad de dias solicitados es correcta?"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"ok\": false,\n  \"message\": \"La cantidad de dias indicados en la licencia solicitada no es válida. La fecha de inicio ({{ $json.startDate }}) no se corresponde con la fecha de retorno ({{ $json.endDate }})\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        320
+      ],
+      "id": "b1f6f480-9242-4b5a-85de-de5d0df9a5b7",
+      "name": "Añadir error por fecha"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ceb56104-9682-45dd-894d-83f7c84962ac",
+              "leftValue": "={{ $('¿La cantidad de dias solicitados es correcta?').item.json.daysRequested }}",
+              "rightValue": "={{ $json.dias_de_licencia }}",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "ffa6f84c-5e96-4e06-a3ed-e09aba9415d0",
+      "name": "¿Tiene dias de vacaciones suficientes?"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"ok\": false,\n  \"message\": \"La cantidad de dias indicados en la licencia solicitada es menor que la cantidad de dias de licencia disponibles. Puede solicitar hasta: {{ $json.dias_de_vacaciones }} dias\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        128
+      ],
+      "id": "107ab1d0-8fec-4c04-bb4d-3e74e5097e2c",
+      "name": "Añadir error por cantidad de dias"
+    },
+    {
+      "parameters": {
+        "content": "## Validaciones\nValidar con lógica de negocio",
+        "height": 416,
+        "width": 896,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "3b8bcbe8-b42e-4024-b23f-6be566bfab8f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=## Nueva solicitud de licencia\nEmpleado: {{ $('Extrar variables y cantidad de dias').item.json.fullName }}\nEmail: {{ $('Extrar variables y cantidad de dias').item.json.email }}\nFecha de inicio: {{ $('Extrar variables y cantidad de dias').item.json.startDate }}\nFecha de retorno {{ $('Extrar variables y cantidad de dias').item.json.endDate }}\n\n### Comentarios:\n{{ $('Extrar variables y cantidad de dias').item.json.comments }}\n\n### Para aprobar o rechazar haga un POST con la respuesta a la siguiente ruta: {{ $execution.resumeFormUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        688,
+        -352
+      ],
+      "id": "e1047fe9-e50c-4485-b187-2a48aaf97e41",
+      "name": "Enviar mensaje a RRHH",
+      "webhookId": "5fe17afc-4b24-45ce-af3f-aa2d981d3b6f",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "auU1KKsGoIRRiapY",
+          "name": "Licencias"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## RRHH\nAprobar o rechazar solicitud de licencia",
+        "height": 304,
+        "width": 448,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "3e0bc03b-d9c0-43aa-ac1c-29263b1b95c4",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "77c3017a-e5ad-4262-9a2d-510506aaa482",
+              "leftValue": "={{ $json.data.aprove }}",
+              "rightValue": "Aprobar",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1808,
+        -368
+      ],
+      "id": "691f5a17-b8ac-4565-a3cb-50c33f805b53",
+      "name": "¿Licencia aprobada?"
+    },
+    {
+      "parameters": {
+        "content": "## Notificacion\nFormatear razon de rechazo",
+        "height": 864,
+        "width": 260,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "fcf7f8ba-5cad-4c37-a7ab-61b78d2a99d8",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"ok\": false,\n  \"message\": \"RRHH rechazó la licencia solicitada fue rechazada por el siguiente motivo: {{ $json.message }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        -48
+      ],
+      "id": "3e4fdb8e-c871-455e-b129-df80290fec41",
+      "name": "Añadir error RRHH rechaza"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "dias_disponibles",
+          "mode": "list",
+          "cachedResultName": "dias_disponibles"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('Extrar variables y cantidad de dias').item.json.email }}",
+            "dias_de_licencia": "={{ $('Obtener dias de licencia').item.json.dias_de_licencia - $('¿La cantidad de dias solicitados es correcta?').item.json.daysRequested }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dias_de_licencia",
+              "displayName": "dias_de_licencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2064,
+        -384
+      ],
+      "id": "c8bec507-83a9-4e39-8e5c-ac8e22d36de2",
+      "name": "Actualizar dias de licencia",
+      "credentials": {
+        "postgres": {
+          "id": "3kn8vMJBVz7CHYhF",
+          "name": "Neon.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extrar variables y cantidad de dias').item.json.email }}",
+        "subject": "Respuesta a la licencia solicitada",
+        "message": "=<h1>Solicitud de licencia aprobada</h1>\n<p>\nQue disfrutes tus vacaciones\n</p>\n<p>\nCordialmente, RRHH.\n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2512,
+        -384
+      ],
+      "id": "9990e4d1-7dae-409f-bb14-cfeacf4a47a8",
+      "name": "Enviar notificación de aprobacion",
+      "webhookId": "0ff832bb-0c57-4d20-97f5-3b50811cc617",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extrar variables y cantidad de dias').item.json.email }}",
+        "subject": "Respuesta a la licencia solicitada",
+        "message": "=<h1>No se pudo aprobar la solicitud de licencia</h1>\n<p>\n{{ $json.message }}\n</p>\n<p>\nCordialmente, RRHH.\n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2512,
+        -48
+      ],
+      "id": "59f6392f-af7a-4ab1-94aa-4f041e0c3757",
+      "name": "Enviar notificación de rechazo",
+      "webhookId": "0ff832bb-0c57-4d20-97f5-3b50811cc617",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Persistencia\nGuardar licencia solicitada",
+        "height": 288,
+        "width": 416,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "23260ac8-f1cf-434e-83ab-19429e13eb3f",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Gmail\nMails de confirmación",
+        "height": 624,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2448,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "77b1b8f0-bbd9-4ac5-a746-6558a727675e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "b350774115bbb681fb97f94278af943fbf9312f7ffa6dd83618d1acc3c5b8989@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "n8n-DevTest"
+        },
+        "start": "={{ $('Extrar variables y cantidad de dias').item.json.startDate }}",
+        "end": "={{ $('Extrar variables y cantidad de dias').item.json.endDate }}",
+        "additionalFields": {
+          "description": "=Licencia solicitada por: {{ $('Extrar variables y cantidad de dias').item.json.fullName }}.\nTiempo solicitado: {{ $('Extrar variables y cantidad de dias').item.json.daysRequested }} dias."
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2272,
+        -384
+      ],
+      "id": "13162ae8-3047-4a1e-b254-c631e7d2beeb",
+      "name": "Crear evento de la licencia",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "WGYBLMPEqUw1tIDZ",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ask/form",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1328,
+        0
+      ],
+      "id": "2ba469f0-a20c-43ca-8770-19288b4fab44",
+      "name": "Solicitar licencia - POST",
+      "webhookId": "872c305f-d436-4b93-9635-bbb4d2f43a3e",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aU3OphcpaKzch9te",
+          "name": "Header Auth Secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Validaciones\nValidar body de la petición",
+        "height": 464,
+        "width": 656,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "b20e6eac-f966-4a89-8f9c-e84727fad5aa",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "dias_disponibles",
+          "mode": "list",
+          "cachedResultName": "dias_disponibles"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "email",
+              "value": "={{ $json.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        -208
+      ],
+      "id": "9fa29727-cf52-474f-8ab2-b5e49b742c72",
+      "name": "Obtener dias de licencia",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "3kn8vMJBVz7CHYhF",
+          "name": "Neon.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "incomingAuthentication": "headerAuth",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "limitWaitTime": true,
+        "resumeAmount": 2,
+        "resumeUnit": "days",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        -352
+      ],
+      "id": "d7aa8f19-482e-4278-8625-b2fe43023b8a",
+      "name": "Esperar respuesta RRHH (48hs)",
+      "webhookId": "5463c8c3-41df-4abe-8d08-277297705c58",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aU3OphcpaKzch9te",
+          "name": "Header Auth Secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Espera un body como\n//{\n//    \"aprove\": false,\n//    \"message\": \"Las fechas solicitadas no son convenientes\"\n//}\n\nconst src = $input.first().json.body;\nconst errors = [];\n\n// Helper\nconst getStr = (v) => (v ?? '').toString().trim();\n\n// Extract and normalize\nconst decision = $input.first().json.body.aprove\nconst message = getStr(src['message']).toLowerCase();\n\nif (!decision && !message) {\n  errors.push('Falta la razon del rechazo.');\n}\n\nif (typeof decision !== \"boolean\") errors.push('Decision inválida');\n\nif (message && message.length > 200) {\n  errors.push('La razón no debe superar 200 caracteres.');\n}\n\n// Response for chaining with Webhook Response\nif (errors.length) {\n  return [\n    {\n      valid: false,\n      status: 400,\n      errors,\n    },\n  ];\n}\n\nreturn [\n  {\n    valid: true,\n    status: 200,\n    data: {\n      \"aprove\": $input.first().json.body.aprove\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        -352
+      ],
+      "id": "1659a183-832f-4cff-9adc-a8b24ae565d8",
+      "name": "Validacion respuesta RRHH"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Espera un body como:\n// {\n//   \"Nombre completo\": \"Juan Perez\",\n//   \"Correo electrónico\": \"juan.perez@example.com\",\n//   \"Fecha de inicio\": \"2025-08-19\",\n//   \"Fecha de retorno\": \"2025-08-23\",\n//   \"Comentarios\": \"Sin comentarios\"\n// }\n\nconst src = $input.first().json.body;\nconst errors = [];\n\n// Helpers\nconst getStr = (v) => (v ?? '').toString().trim();\nconst isEmail = (v) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(v);\nconst ISO_DATE_RE = /^\\d{4}-\\d{2}-\\d{2}$/;\nconst parseISODate = (s) => new Date(`${s}T00:00:00Z`); // avoid server TZ issues\n\n// Extract and normalize\nconst fullName     = getStr(src['Nombre Completo']);\nconst email        = getStr(src['Email']).toLowerCase();\nconst startDateStr = getStr(src['Fecha de Inicio']);\nconst endDateStr   = getStr(src['Fecha de Retorno']);\nconst comments     = getStr(src['Comentarios']);\n\n// Validations\nif (!fullName) errors.push('Nombre completo es requerido.'); \nif (!email) errors.push('Correo electrónico es requerido.');\nelse if (!isEmail(email)) errors.push('Correo electrónico inválido.');\n\nif (!startDateStr) errors.push('Fecha de inicio es requerida.');\nelse if (!ISO_DATE_RE.test(startDateStr))\n  errors.push('Fecha de inicio debe tener formato YYYY-MM-DD.');\n\nif (!endDateStr) errors.push('Fecha de retorno es requerida.');\nelse if (!ISO_DATE_RE.test(endDateStr))\n  errors.push('Fecha de retorno debe tener formato YYYY-MM-DD.');\n\n// Date comparison (only if format is valid)\nif (ISO_DATE_RE.test(startDateStr) && ISO_DATE_RE.test(endDateStr)) {\n  const startDate = parseISODate(startDateStr);\n  const endDate   = parseISODate(endDateStr);\n\n  if (Number.isNaN(startDate.valueOf())) errors.push('Fecha de inicio no es válida.');\n  if (Number.isNaN(endDate.valueOf())) errors.push('Fecha de retorno no es válida.');\n\n// Must be strictly before\n//  if (!Number.isNaN(startDate.valueOf()) && !Number.isNaN(endDate.valueOf()) && !(startDate < endDate)) {\n//    errors.push('La fecha de inicio debe ser ANTES que la fecha de retorno.');\n//  }\n}\n\n// Optional comments\nif (comments && comments.length > 500) {\n  errors.push('Comentarios no debe superar 500 caracteres.');\n}\n\n// Response for chaining with Webhook Response\nif (errors.length) {\n  return [\n    {\n      valid: false,\n      status: 400,\n      errors,\n    },\n  ];\n}\n\nreturn [\n  {\n    valid: true,\n    status: 200,\n    data: {\n      fullName,\n      email,\n      startDate: startDateStr,\n      endDate: endDateStr,\n      comments,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1104,
+        0
+      ],
+      "id": "6e6cbe8a-b861-4374-abcb-605da0a706c8",
+      "name": "Validar solicitud"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fcd141ce-8663-499c-bdd2-b0c2a905c427",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1376,
+        -352
+      ],
+      "id": "4700b770-37c6-481f-9393-058d6a467e25",
+      "name": "¿Respuesta RRHH válida?"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1600,
+        -160
+      ],
+      "id": "9850eb07-8e2a-4a28-8973-3b1163def45d",
+      "name": "Responder código 400 RRHH"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1600,
+        -368
+      ],
+      "id": "29e646ee-afaf-4df5-b558-1a973ac31caa",
+      "name": "Responder código 200 RRHH"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fcd141ce-8663-499c-bdd2-b0c2a905c427",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -896,
+        0
+      ],
+      "id": "21840b32-0536-440f-910c-afd9af2443af",
+      "name": "¿Solicitud válida?"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -656,
+        176
+      ],
+      "id": "de1bb8e9-f574-4982-9e23-15fb7ac4729b",
+      "name": "Responder código 400 Solicitud"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -656,
+        -16
+      ],
+      "id": "ba7e9705-1d34-4750-abbc-8ed9018b6673",
+      "name": "Responder código 200 Solicitud"
+    },
+    {
+      "parameters": {
+        "content": "## Validaciones\nValidar body de la petición",
+        "height": 480,
+        "width": 864,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1104,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "4a0b12c9-643b-485d-ad2e-bf4e6f76111f",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extrar variables y cantidad de dias": {
+      "main": [
+        [
+          {
+            "node": "¿Tiene 7 dias de anticipación?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene 7 dias de anticipación?": {
+      "main": [
+        [
+          {
+            "node": "¿La cantidad de dias solicitados es correcta?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Añadir error por tiempo de solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Añadir error por tiempo de solicitud": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificación de rechazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿La cantidad de dias solicitados es correcta?": {
+      "main": [
+        [
+          {
+            "node": "Obtener dias de licencia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Añadir error por fecha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Añadir error por fecha": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificación de rechazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene dias de vacaciones suficientes?": {
+      "main": [
+        [
+          {
+            "node": "Enviar mensaje a RRHH",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Añadir error por cantidad de dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Añadir error por cantidad de dias": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificación de rechazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar mensaje a RRHH": {
+      "main": [
+        [
+          {
+            "node": "Esperar respuesta RRHH (48hs)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Licencia aprobada?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar dias de licencia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Añadir error RRHH rechaza",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Añadir error RRHH rechaza": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificación de rechazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar dias de licencia": {
+      "main": [
+        [
+          {
+            "node": "Crear evento de la licencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear evento de la licencia": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificación de aprobacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicitar licencia - POST": {
+      "main": [
+        [
+          {
+            "node": "Validar solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener dias de licencia": {
+      "main": [
+        [
+          {
+            "node": "¿Tiene dias de vacaciones suficientes?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar respuesta RRHH (48hs)": {
+      "main": [
+        [
+          {
+            "node": "Validacion respuesta RRHH",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validacion respuesta RRHH": {
+      "main": [
+        [
+          {
+            "node": "¿Respuesta RRHH válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar solicitud": {
+      "main": [
+        [
+          {
+            "node": "¿Solicitud válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Respuesta RRHH válida?": {
+      "main": [
+        [
+          {
+            "node": "Responder código 200 RRHH",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder código 400 RRHH",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Solicitud válida?": {
+      "main": [
+        [
+          {
+            "node": "Responder código 200 Solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder código 400 Solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder código 200 Solicitud": {
+      "main": [
+        [
+          {
+            "node": "Extrar variables y cantidad de dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder código 200 RRHH": {
+      "main": [
+        [
+          {
+            "node": "¿Licencia aprobada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "08e23450-7ab4-42c1-b19f-5d4a6efa47d7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8b1efddd52ba851d4d9b0653ca505f27c13da4dadf06e758dd070e0ef6d5d64"
+  },
+  "id": "BKFIny9H7zF87WsA",
+  "tags": []
+}
