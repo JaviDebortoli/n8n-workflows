@@ -1,0 +1,871 @@
+{
+  "name": "Scraping cursos",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -352,
+        -192
+      ],
+      "id": "acd16110-1500-473e-a634-7c396da5ef36",
+      "name": "Obtener webs"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        0
+      ],
+      "id": "aaadc8a2-c0cd-4b10-b663-e3c6344d6455",
+      "name": "Ejecución manual"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "02793e10-3e87-48f3-b429-b8229719f6db",
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "175f581c-b83e-4013-aa4b-3745fc05e1cb",
+              "leftValue": "={{ $json['Sitio web'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        64,
+        -192
+      ],
+      "id": "4f2d571c-9b65-41c9-989b-57cd114c50f5",
+      "name": "Filtrar sitios con enlace"
+    },
+    {
+      "parameters": {
+        "content": "## Inicio\nRecopilar sitios web de cursos para hacer scraping\n",
+        "height": 624,
+        "width": 608,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "5dd1b470-33a1-49fa-8405-266f4512990c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Sitio web'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        272,
+        -192
+      ],
+      "id": "b9364484-4604-4d11-930a-8bf2241bcede",
+      "name": "Obtener HTML del sitio"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -192
+      ],
+      "id": "374e41ba-13c6-434e-a343-07044dde34c2",
+      "name": "Tranformar a Markdown"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n{\n  \"courseName\": \"XXX\",\n  \"instructor\": \"XXX\",\n  \"devtallesUrl\": \"https://xxx\",\n  \"udemyUrl\": \"https://xxx\",\n  \"description\": \"xxx\",\n  \"category\": \"xxx\",\n  \"additionalInformation\": \"xxxx\" \n},\n{\n  \"courseName\": \"XXX\",\n  \"instructor\": \"XXX\",\n  \"devtallesUrl\": \"https://xxx\",\n  \"udemyUrl\": \"https://xxx\",\n  \"description\": \"xxx\",\n  \"category\": \"xxx\",\n  \"additionalInformation\": \"xxxx\" \n}\n]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        864,
+        16
+      ],
+      "id": "627de9c6-29c9-44b8-8975-04703b6fca66",
+      "name": "Convertir en JSON"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -192
+      ],
+      "id": "956dbf9c-8cfa-45b1-af97-e8c8a07b2113",
+      "name": "Separar cursos"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        -192
+      ],
+      "id": "a39b8e9e-9a52-4ff5-88ec-36116090a61e",
+      "name": "Iterar cursos"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM",
+          "mode": "list",
+          "cachedResultName": "Scraping cursos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1642794561,
+          "mode": "list",
+          "cachedResultName": "Resultados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM/edit#gid=1642794561"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nombre del curso": "={{ $json.courseName }}",
+            "Instructor": "={{ $json.instructor }}",
+            "DevTalles": "={{ $json.devtallesUrl }}",
+            "Udemy": "={{ $json.udemyUrl }}",
+            "Descripción": "={{ $json.description }}"
+          },
+          "matchingColumns": [
+            "Nombre del curso"
+          ],
+          "schema": [
+            {
+              "id": "Nombre del curso",
+              "displayName": "Nombre del curso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Instructor",
+              "displayName": "Instructor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DevTalles",
+              "displayName": "DevTalles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Udemy",
+              "displayName": "Udemy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descripción",
+              "displayName": "Descripción",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Google Docs - Temario",
+              "displayName": "Google Docs - Temario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1456,
+        -48
+      ],
+      "id": "733566e8-0b50-49af-865f-fb556fc20a9d",
+      "name": "Crear o actualizar información del curso",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EMPaJXRHrvtzjV6F",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Scraping\nMinar informacion de los sitios indicados\n",
+        "height": 624,
+        "width": 768
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        224,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "28cf62c1-78cc-443b-a23f-0bfa09aab688",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Persistencia\nGuardado de la informacion extraida",
+        "height": 624,
+        "width": 1972,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1008,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "6cb30c8d-b2b2-4f44-9512-bdc24b111076",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.Udemy }}",
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -48
+      ],
+      "id": "48929e92-be22-470f-a576-1dd0cceff1db",
+      "name": "Scraping al curso en Udemy",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "y8aKVmWqEgRyWLnH",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM",
+          "mode": "list",
+          "cachedResultName": "Scraping cursos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sitios web",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -144,
+        -192
+      ],
+      "id": "81d0cb90-ced4-4cd4-b979-6d7027a26d11",
+      "name": "Obtener sitios web",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EMPaJXRHrvtzjV6F",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Fireclawl\nServicio de scraping para webs protegidas",
+        "height": 320,
+        "width": 288,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1648,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "c1742542-daf5-4fe0-be1a-1073816bfd19",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "folderId": "1TvwdcUPZ7tKf2XoxE982sHxsxJG-oPVa",
+        "title": "={{ $json.data.metadata['twitter:title'] }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        -48
+      ],
+      "id": "52f53ee2-dab1-4859-8ad6-bbe3dca599fb",
+      "name": "Crear documento del curso",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "7TdUt2uEwA7qrn3w",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $('Crear documento del curso').item.json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $json.output.information }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2784,
+        -48
+      ],
+      "id": "29ca00cf-9901-4dad-a939-e349dc37a416",
+      "name": "Cargar temario en el documento del curso",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "7TdUt2uEwA7qrn3w",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM",
+          "mode": "list",
+          "cachedResultName": "Scraping cursos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1642794561,
+          "mode": "list",
+          "cachedResultName": "Resultados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SueDjaqaKjaQCG7z5K1M4DYWBmgcR3sBmfbFmcYtZkM/edit#gid=1642794561"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nombre del curso": "={{ $('Crear o actualizar información del curso').item.json['Nombre del curso'] }}",
+            "Google Docs - Temario": "=https://docs.google.com/document/d/{{ $json.id }}"
+          },
+          "matchingColumns": [
+            "Nombre del curso"
+          ],
+          "schema": [
+            {
+              "id": "Nombre del curso",
+              "displayName": "Nombre del curso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Instructor",
+              "displayName": "Instructor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "DevTalles",
+              "displayName": "DevTalles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Udemy",
+              "displayName": "Udemy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Descripción",
+              "displayName": "Descripción",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Google Docs - Temario",
+              "displayName": "Google Docs - Temario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2224,
+        -48
+      ],
+      "id": "b4f38b93-c689-40bc-8035-eb00925709f0",
+      "name": "Actualizar link al temario",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EMPaJXRHrvtzjV6F",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-lite-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        176
+      ],
+      "id": "581ce1de-c652-4dce-aaf8-b4eac2444293",
+      "name": "Convertir a texto",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4kq0kHZiuf3z8E5Y",
+          "name": "Ana Maguitman"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# URL del sitio\n{{ $('Filtrar sitios con enlace').item.json['Sitio web'] }}\n\n# Data a extrar\n{{ $json.data }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=# Información\nEres un asistente para extraer datos de un sitio web, se te dará la información en formato Markdown, y necesito que retornes la información en el formato deseado.\n\nNo retornes nada más de lo que te necesito.\n\nSi el URL no está completo, completarlo usando el URL que también te proveeran del sitio del cual se extrae la información.\n\n## Objetivo\nInformación que necesitas extraer y encontrar: \n\n- Nombre del instructor (instructorName)\n- url del curso de Udemy (udemyUrl) (si lo tiene, si no null)\n- url del curso de DevTalles (devtallesUrl) \n- Nombre del curso (courseName)\n- Descripción del curso (description)\n- Categoría del curso (category)\n- Otra información relevante (additionalInformation)\n\n## Ejemplo de salida\nNecesito un json con la siguiente estructura:\n[\n{\n  courseName: 'XXX',\n  instructor: 'XXX',\n  devtallesUrl: 'https://xxx',\n  udemyUrl: 'https://xxx',\n  description: 'xxx',\n  category: 'xxx',\n  additionalInformation: 'xxxx' \n},\n{\n  courseName: 'XXX',\n  instructor: 'XXX',\n  devtallesUrl: 'https://xxx',\n  udemyUrl: 'https://xxx',\n  description: 'xxx',\n  category: 'xxx',\n  additionalInformation: 'xxxx' \n}\n]"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        688,
+        -192
+      ],
+      "id": "e116ebea-eb84-4623-b5bb-81cccb166c97",
+      "name": "Convertir texto a Markdown"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-lite-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        656,
+        16
+      ],
+      "id": "9fc9a913-69c1-41fe-a498-7048a0179cc8",
+      "name": "Convertir a Markdown",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4kq0kHZiuf3z8E5Y",
+          "name": "Ana Maguitman"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"information\": \"xxxxxxxxxxxxxx\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2608,
+        176
+      ],
+      "id": "e59728d1-802a-4b27-99d4-21d7e16d9992",
+      "name": "Convertir en JSON 2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Scraping al curso en Udemy').item.json.data.markdown }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=# Información\nEres un asistente para extraer la descripción de un curso que recibirás en formato Markdown y debes extraer toda la información relevante que despues sera usada para crear un Documento en Google Docs.\n\n## Ejemplo de salida\nInformación de salida en un formato que Google Docs pueda interpretar:\n{\n  information: 'xxxxxxxxxxxxxx'\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2432,
+        -48
+      ],
+      "id": "25792150-adbe-4fb4-a8ac-b86adfb9ef5d",
+      "name": "Extraer información del curso"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Obtener webs": {
+      "main": [
+        [
+          {
+            "node": "Obtener sitios web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ejecución manual": {
+      "main": [
+        [
+          {
+            "node": "Obtener sitios web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar sitios con enlace": {
+      "main": [
+        [
+          {
+            "node": "Obtener HTML del sitio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener HTML del sitio": {
+      "main": [
+        [
+          {
+            "node": "Tranformar a Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tranformar a Markdown": {
+      "main": [
+        [
+          {
+            "node": "Convertir texto a Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir en JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Convertir texto a Markdown",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar cursos": {
+      "main": [
+        [
+          {
+            "node": "Iterar cursos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iterar cursos": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Crear o actualizar información del curso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear o actualizar información del curso": {
+      "main": [
+        [
+          {
+            "node": "Scraping al curso en Udemy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraping al curso en Udemy": {
+      "main": [
+        [
+          {
+            "node": "Crear documento del curso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener sitios web": {
+      "main": [
+        [
+          {
+            "node": "Filtrar sitios con enlace",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear documento del curso": {
+      "main": [
+        [
+          {
+            "node": "Actualizar link al temario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cargar temario en el documento del curso": {
+      "main": [
+        [
+          {
+            "node": "Iterar cursos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar link al temario": {
+      "main": [
+        [
+          {
+            "node": "Extraer información del curso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir a texto": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extraer información del curso",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir texto a Markdown": {
+      "main": [
+        [
+          {
+            "node": "Separar cursos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir a Markdown": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Convertir texto a Markdown",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir en JSON 2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extraer información del curso",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer información del curso": {
+      "main": [
+        [
+          {
+            "node": "Cargar temario en el documento del curso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "76c76fae-ef40-4ca6-8757-a6414710fe74",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "97e108128000929ae2fc7a9b75d409f0298caa63e1295a79654da3fe32fc8583"
+  },
+  "id": "eYn0BOQCJASu9dRB",
+  "tags": []
+}
