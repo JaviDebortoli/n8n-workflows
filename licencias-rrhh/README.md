@@ -4,7 +4,7 @@
 
 ## 📌 Descripción
 Este workflow implementa un proceso completo de gestión de solicitudes de licencia de empleados. El flujo:
-1. Recibe una solicitud al endpoint: POST /ask/form. Protegido con Header Authentication.
+1. Recibe una solicitud al endpoint disparador del flujo (POST /ask/form).
 2. Validación técnica del body:
     - Formato del correo electrónico.
     - Fechas en formato ISO (YYYY-MM-DD).
