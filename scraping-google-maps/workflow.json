@@ -1,0 +1,4417 @@
+{
+  "name": "Google Maps scraping",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "01ff9f52-9be7-4a98-8e3f-68419e9bcead",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -4864,
+        -176
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "## Google Sheet\n- Leer query cada 30min\n",
+        "height": 356,
+        "width": 416,
+        "color": 4
+      },
+      "id": "d5e33204-42db-49fe-8000-7295afbcb7c9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4912,
+        -304
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Apify\nHacer scraping a traves de Google Maps\n",
+        "height": 436,
+        "width": 1300
+      },
+      "id": "51ed458f-696e-4353-88ec-1222a0500c8a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4480,
+        -336
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Firecrawl\nScraping a sitios web",
+        "height": 440,
+        "width": 1396,
+        "color": 6
+      },
+      "id": "c6be568f-737f-4a53-a028-a9d1d6bc81bb",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3168,
+        -336
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// N8N Code Node - Extract emails, LinkedIn, Facebook, Instagram for single item\nconst item = $input.first();\n\n// Get the text content to search (adjust field names as needed)\nconst textContent = item.json.data.html;\n\n// Initialize result object\nconst result = {\n  website: $('Procesamiento por lotes').first().json.website,\n  emails: \"None\",\n  linkedin: \"None\", \n  facebook: \"None\",\n  instagram: \"None\",\n  twitter: \"None\"\n};\n\n// Email extraction regex - matches common email patterns\nconst emailRegex = /\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b/gi;\nconst emails = textContent.match(emailRegex);\n\nif (emails && emails.length > 0) {\n  // Remove duplicates and filter out common non-email matches\n  const uniqueEmails = [...new Set(emails)].filter(email => {\n    const lowerEmail = email.toLowerCase();\n    return !lowerEmail.includes('example.com') && \n           !lowerEmail.includes('test@') &&\n           !lowerEmail.includes('noreply@') &&\n           !lowerEmail.includes('no-reply@') &&\n           lowerEmail.length > 5;\n  });\n  \n  if (uniqueEmails.length > 0) {\n    result.emails = uniqueEmails.length === 1 ? uniqueEmails[0] : uniqueEmails.join(', ');\n  }\n}\n\n// LinkedIn extraction - improved pattern\nconst linkedinRegex = /(?:https?:\\/\\/)?(?:www\\.)?linkedin\\.com\\/(?:in\\/|company\\/|pub\\/)[a-zA-Z0-9\\-._]+\\/?/gi;\nconst linkedinMatches = textContent.match(linkedinRegex);\nif (linkedinMatches && linkedinMatches.length > 0) {\n  const cleanLinkedin = linkedinMatches[0].replace(/^(?:https?:\\/\\/)?(?:www\\.)?/i, 'https://www.');\n  result.linkedin = cleanLinkedin;\n}\n\n// Facebook extraction - improved to match numeric IDs and usernames\nconst facebookRegex = /(?:https?:\\/\\/)?(?:www\\.|m\\.|mobile\\.)?facebook\\.com\\/(?:[^\\/\\s]+\\/)*[^\\/\\s?#]+/gi;\nconst facebookMatches = textContent.match(facebookRegex);\nif (facebookMatches && facebookMatches.length > 0) {\n  const cleanFacebook = facebookMatches[0].replace(/^(?:https?:\\/\\/)?(?:www\\.)?/i, 'https://www.');\n  result.facebook = cleanFacebook;\n}\n\n// Instagram extraction - improved to match various URL formats\nconst instagramRegex = /(?:https?:\\/\\/)?(?:www\\.)?instagram\\.com\\/[a-zA-Z0-9\\-._]+\\/?/gi;\nconst instagramMatches = textContent.match(instagramRegex);\nif (instagramMatches && instagramMatches.length > 0) {\n  const cleanInstagram = instagramMatches[0].replace(/^(?:https?:\\/\\/)?(?:www\\.)?/i, 'https://www.');\n  result.instagram = cleanInstagram;\n}\n\n// Twitter/X extraction - improved to match usernames properly\nconst twitterRegex = /(?:https?:\\/\\/)?(?:www\\.)?(?:twitter\\.com|x\\.com)\\/[a-zA-Z0-9_]+\\/?/gi;\nconst twitterMatches = textContent.match(twitterRegex);\nif (twitterMatches && twitterMatches.length > 0) {\n  const cleanTwitter = twitterMatches[0].replace(/^(?:https?:\\/\\/)?(?:www\\.)?/i, 'https://www.');\n  result.twitter = cleanTwitter;\n}\n\n// Alternative extraction for social handles without full URLs\n// Look for @username patterns for Instagram and Twitter\nif (result.instagram === \"None\") {\n  const igHandleRegex = /@([a-zA-Z0-9._]{1,30})/gi;\n  const igHandles = textContent.match(igHandleRegex);\n  if (igHandles && igHandles.length > 0) {\n    const username = igHandles[0].replace('@', '');\n    if (username.length > 0 && !username.includes(' ')) {\n      result.instagram = `https://www.instagram.com/${username}`;\n    }\n  }\n}\n\n// Look for Twitter handles without full URLs\nif (result.twitter === \"None\") {\n  const twitterHandleRegex = /@([a-zA-Z0-9_]{1,15})/gi;\n  const twitterHandles = textContent.match(twitterHandleRegex);\n  if (twitterHandles && twitterHandles.length > 0) {\n    const username = twitterHandles[0].replace('@', '');\n    if (username.length > 0 && !username.includes(' ')) {\n      result.twitter = `https://www.x.com/${username}`;\n    }\n  }\n}\n\n// Clean up URLs - remove trailing slashes and parameters\n['linkedin', 'facebook', 'instagram', 'twitter'].forEach(platform => {\n  if (result[platform] !== \"None\") {\n    result[platform] = result[platform].split('?')[0].split('#')[0].replace(/\\/$/, '');\n  }\n});\n\nreturn result;"
+      },
+      "id": "ef5e6500-380c-4681-b201-f43bcfc3344e",
+      "name": "Extraer información de contacto",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2384,
+        -272
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk",
+          "mode": "list",
+          "cachedResultName": "Copia de Google Maps Scraper local",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Query",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "true",
+            "row_number": "={{ $('Leer queries pendientes').item.json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "77db185c-9f21-4438-ad18-b98056260f76",
+      "name": "Marcar como terminado",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1952,
+        -208
+      ],
+      "typeVersion": 4.6,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lxd614Fq9LGbcGwq",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/compass~crawler-google-places/runs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"searchStringsArray\": [\n    \"{{ $json.Query }}\"\n  ],\n  \"locationQuery\": \"{{ $json.Location }}\",\n  \"maxCrawledPlacesPerSearch\": 15,\n  \"language\": \"en\",\n  \"maximumLeadsEnrichmentRecords\": 0,\n  \"maxImages\": 0\n}",
+        "options": {}
+      },
+      "id": "71926792-fe35-45de-b06d-3ac1f416fcc4",
+      "name": "Empezar scraping con Apify",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -4432,
+        -176
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "ajqZFVn8PkdLoCjx",
+          "name": "Apify (Bearer Auth) - javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "15d29826-5c16-406e-8cb1-ff6c69b3fea4",
+      "name": "Esperar que el trabajo termine",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -4208,
+        -176
+      ],
+      "webhookId": "97a65079-8ee5-45a2-9de0-afd263bbbe34",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/actor-runs/{{ $json.data.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "a80d22e1-6a44-481a-9935-ea04c9e07168",
+      "name": "Revisar estado del scraping",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3984,
+        -256
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "ajqZFVn8PkdLoCjx",
+          "name": "Apify (Bearer Auth) - javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "de704919-205a-470f-a417-b297fbbdbaf8",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "SUCCEEDED"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "5a09e73a-d161-45ea-bc1a-c4ee63f9adec",
+      "name": "Bucle hasta completar scraping",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -3776,
+        -176
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/datasets/{{ $json.data.defaultDatasetId }}/items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "a46d78eb-d87c-4bdc-939c-c94f12c6258e",
+      "name": "Obtener resultados del scraping",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3552,
+        -176
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "ajqZFVn8PkdLoCjx",
+          "name": "Apify (Bearer Auth) - javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk",
+          "mode": "list",
+          "cachedResultName": "Copia de Google Maps Scraper local",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Query",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "b88167b5-ffc6-48a6-9f08-148dee17bfde",
+      "name": "Leer queries pendientes",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -4656,
+        -176
+      ],
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lxd614Fq9LGbcGwq",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk",
+          "mode": "list",
+          "cachedResultName": "Copia de Google Maps Scraper local",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1948906848,
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit#gid=1948906848"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "categoryName": "={{ $json.categoryName }}",
+            "address": "={{ $json.address }}",
+            "phone": "={{ $json.phone }}",
+            "website": "={{ $json.website }}",
+            "searchString": "={{ $('Leer queries pendientes').item.json.Query }}, {{ $('Leer queries pendientes').item.json.Location }}",
+            "status": "={{ $('Revisar estado del scraping').item.json.data.status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "searchString",
+              "displayName": "searchString",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "categoryName",
+              "displayName": "categoryName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "4d21b3d2-7655-4e95-94ee-db4feb080ff5",
+      "name": "Guardar datos encontrados",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -3328,
+        -176
+      ],
+      "typeVersion": 4.6,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lxd614Fq9LGbcGwq",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8c5898bd-fcc9-435b-b0d4-7f5653699b6c",
+      "name": "Procesamiento por lotes",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -2896,
+        -176
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "2218f0be-2c48-4a1a-bd21-8bdb67c495a1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.website }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f92a89b3-f32c-4b0d-b812-a3342e177e81",
+      "name": "Filtrar resultados con sitio web",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -3104,
+        -176
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/scrape",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.website }}\",\n  \"formats\": [\n    \"html\"\n  ]\n}",
+        "options": {}
+      },
+      "id": "4abf47de-9495-4705-8255-fd1be25c58ed",
+      "name": "Scraping del sitio web",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2608,
+        -272
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "JnHQzK5QxB5SiKNJ",
+          "name": "Fireclawl (Bearer Auth) - javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk",
+          "mode": "list",
+          "cachedResultName": "Copia de Google Maps Scraper local",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2056137853,
+          "mode": "list",
+          "cachedResultName": "Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SIJJefT3ecKzGS0r4t4asuXHT3XAvcorOUga6esFcVk/edit#gid=2056137853"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "website": "={{ $json.website }}",
+            "emails": "={{ $json.emails }}",
+            "linkedin": "={{ $json.linkedin }}",
+            "facebook": "={{ $json.facebook }}",
+            "instagram": "={{ $json.instagram }}",
+            "twitter": "={{ $json.twitter }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emails",
+              "displayName": "emails",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "linkedin",
+              "displayName": "linkedin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "facebook",
+              "displayName": "facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "instagram",
+              "displayName": "instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "twitter",
+              "displayName": "twitter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "bb16afca-d80c-4fc5-bc9b-524885ca7f1b",
+      "name": "Guardar información de contacto",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -2176,
+        -272
+      ],
+      "typeVersion": 4.6,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Lxd614Fq9LGbcGwq",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Obtener resultados del scraping": [
+      {
+        "json": {
+          "title": "Naans & Curries - An Ethnic Indian Restaurant",
+          "price": null,
+          "categoryName": "Indian restaurant",
+          "address": "Lincoln Plaza, Av. 65, San José, San Jose, Los Colegios, 11401, Costa Rica",
+          "neighborhood": "Colegios",
+          "street": "Lincoln Plaza, Av. 65",
+          "city": "San Jose",
+          "postalCode": "11401",
+          "state": "San José Province",
+          "countryCode": "CR",
+          "website": "http://www.naans-curries.com/",
+          "phone": "+506 2519 9595",
+          "phoneUnformatted": "+50625199595",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.9624837,
+            "lng": -84.0553243
+          },
+          "locatedIn": "Lincoln Plaza",
+          "plusCode": "XW6V+XV Moravia, San José Province, Costa Rica",
+          "menu": "http://naans.cr/lincoln",
+          "totalScore": 4.9,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJc747YcTloI8RExTJLbTKwx4",
+          "categories": [
+            "Indian restaurant",
+            "Asian restaurant",
+            "Gluten-free restaurant",
+            "Modern Indian restaurant",
+            "Vegan restaurant",
+            "Vegetarian restaurant"
+          ],
+          "fid": "0x8fa0e5c4613bbe73:0x1ec3cab42dc91413",
+          "cid": "2216838316807492627",
+          "reviewsCount": 638,
+          "reviewsDistribution": {
+            "oneStar": 9,
+            "twoStar": 2,
+            "threeStar": 3,
+            "fourStar": 16,
+            "fiveStar": 608
+          },
+          "imagesCount": 440,
+          "imageCategories": [
+            "All",
+            "Latest",
+            "Videos",
+            "Menu",
+            "Food & drink",
+            "Vibe",
+            "Curry",
+            "Korma",
+            "By owner",
+            "Street View & 360°"
+          ],
+          "scrapedAt": "2026-03-02T23:20:07.290Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "popularTimesLiveText": "Now: Usually not too busy",
+          "popularTimesHistogram": {
+            "Su": [
+              {
+                "hour": 6,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 7,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 8,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 9,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 10,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 11,
+                "occupancyPercent": 35
+              },
+              {
+                "hour": 12,
+                "occupancyPercent": 37
+              },
+              {
+                "hour": 13,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 14,
+                "occupancyPercent": 60
+              },
+              {
+                "hour": 15,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 16,
+                "occupancyPercent": 47
+              },
+              {
+                "hour": 17,
+                "occupancyPercent": 60
+              },
+              {
+                "hour": 18,
+                "occupancyPercent": 80
+              },
+              {
+                "hour": 19,
+                "occupancyPercent": 75
+              },
+              {
+                "hour": 20,
+                "occupancyPercent": 72
+              },
+              {
+                "hour": 21,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 22,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 23,
+                "occupancyPercent": 0
+              }
+            ],
+            "Mo": [
+              {
+                "hour": 6,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 7,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 8,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 9,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 10,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 11,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 12,
+                "occupancyPercent": 60
+              },
+              {
+                "hour": 13,
+                "occupancyPercent": 62
+              },
+              {
+                "hour": 14,
+                "occupancyPercent": 40
+              },
+              {
+                "hour": 15,
+                "occupancyPercent": 42
+              },
+              {
+                "hour": 16,
+                "occupancyPercent": 37
+              },
+              {
+                "hour": 17,
+                "occupancyPercent": 47
+              },
+              {
+                "hour": 18,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 19,
+                "occupancyPercent": 70
+              },
+              {
+                "hour": 20,
+                "occupancyPercent": 75
+              },
+              {
+                "hour": 21,
+                "occupancyPercent": 77
+              },
+              {
+                "hour": 22,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 23,
+                "occupancyPercent": 0
+              }
+            ],
+            "Tu": [
+              {
+                "hour": 6,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 7,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 8,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 9,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 10,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 11,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 12,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 13,
+                "occupancyPercent": 40
+              },
+              {
+                "hour": 14,
+                "occupancyPercent": 47
+              },
+              {
+                "hour": 15,
+                "occupancyPercent": 47
+              },
+              {
+                "hour": 16,
+                "occupancyPercent": 52
+              },
+              {
+                "hour": 17,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 18,
+                "occupancyPercent": 52
+              },
+              {
+                "hour": 19,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 20,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 21,
+                "occupancyPercent": 62
+              },
+              {
+                "hour": 22,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 23,
+                "occupancyPercent": 0
+              }
+            ],
+            "We": [
+              {
+                "hour": 6,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 7,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 8,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 9,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 10,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 11,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 12,
+                "occupancyPercent": 52
+              },
+              {
+                "hour": 13,
+                "occupancyPercent": 47
+              },
+              {
+                "hour": 14,
+                "occupancyPercent": 37
+              },
+              {
+                "hour": 15,
+                "occupancyPercent": 40
+              },
+              {
+                "hour": 16,
+                "occupancyPercent": 52
+              },
+              {
+                "hour": 17,
+                "occupancyPercent": 62
+              },
+              {
+                "hour": 18,
+                "occupancyPercent": 77
+              },
+              {
+                "hour": 19,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 20,
+                "occupancyPercent": 75
+              },
+              {
+                "hour": 21,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 22,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 23,
+                "occupancyPercent": 0
+              }
+            ],
+            "Th": [
+              {
+                "hour": 6,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 7,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 8,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 9,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 10,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 11,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 12,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 13,
+                "occupancyPercent": 60
+              },
+              {
+                "hour": 14,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 15,
+                "occupancyPercent": 80
+              },
+              {
+                "hour": 16,
+                "occupancyPercent": 100
+              },
+              {
+                "hour": 17,
+                "occupancyPercent": 67
+              },
+              {
+                "hour": 18,
+                "occupancyPercent": 52
+              },
+              {
+                "hour": 19,
+                "occupancyPercent": 47
+              },
+              {
+                "hour": 20,
+                "occupancyPercent": 72
+              },
+              {
+                "hour": 21,
+                "occupancyPercent": 75
+              },
+              {
+                "hour": 22,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 23,
+                "occupancyPercent": 0
+              }
+            ],
+            "Fr": [
+              {
+                "hour": 6,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 7,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 8,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 9,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 10,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 11,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 12,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 13,
+                "occupancyPercent": 55
+              },
+              {
+                "hour": 14,
+                "occupancyPercent": 72
+              },
+              {
+                "hour": 15,
+                "occupancyPercent": 77
+              },
+              {
+                "hour": 16,
+                "occupancyPercent": 82
+              },
+              {
+                "hour": 17,
+                "occupancyPercent": 75
+              },
+              {
+                "hour": 18,
+                "occupancyPercent": 70
+              },
+              {
+                "hour": 19,
+                "occupancyPercent": 72
+              },
+              {
+                "hour": 20,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 21,
+                "occupancyPercent": 60
+              },
+              {
+                "hour": 22,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 23,
+                "occupancyPercent": 0
+              }
+            ],
+            "Sa": [
+              {
+                "hour": 6,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 7,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 8,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 9,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 10,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 11,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 12,
+                "occupancyPercent": 70
+              },
+              {
+                "hour": 13,
+                "occupancyPercent": 60
+              },
+              {
+                "hour": 14,
+                "occupancyPercent": 52
+              },
+              {
+                "hour": 15,
+                "occupancyPercent": 50
+              },
+              {
+                "hour": 16,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 17,
+                "occupancyPercent": 37
+              },
+              {
+                "hour": 18,
+                "occupancyPercent": 35
+              },
+              {
+                "hour": 19,
+                "occupancyPercent": 32
+              },
+              {
+                "hour": 20,
+                "occupancyPercent": 57
+              },
+              {
+                "hour": 21,
+                "occupancyPercent": 65
+              },
+              {
+                "hour": 22,
+                "occupancyPercent": 0
+              },
+              {
+                "hour": 23,
+                "occupancyPercent": 0
+              }
+            ]
+          },
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11 AM to 10 PM"
+            }
+          ],
+          "peopleAlsoSearch": [
+            {
+              "category": "People also search for",
+              "title": "Indian Palace San Jose",
+              "reviewsCount": 1006,
+              "totalScore": 4.6
+            },
+            {
+              "category": "People also search for",
+              "title": "Chili's • Moravia",
+              "reviewsCount": 1434,
+              "totalScore": 4.4
+            },
+            {
+              "category": "People also search for",
+              "title": "Taste of India506",
+              "reviewsCount": 751,
+              "totalScore": 4.5
+            },
+            {
+              "category": "People also search for",
+              "title": "Smash Burger • Moravia",
+              "reviewsCount": 314,
+              "totalScore": 4.1
+            },
+            {
+              "category": "People also search for",
+              "title": "Hooligan's",
+              "reviewsCount": 995,
+              "totalScore": 4.4
+            }
+          ],
+          "placesTags": [],
+          "reviewsTags": [
+            {
+              "title": "taste",
+              "count": 51
+            },
+            {
+              "title": "environment",
+              "count": 22
+            },
+            {
+              "title": "dessert",
+              "count": 18
+            },
+            {
+              "title": "butter chicken",
+              "count": 8
+            },
+            {
+              "title": "chicken tikka masala",
+              "count": 7
+            },
+            {
+              "title": "gastronomic",
+              "count": 6
+            },
+            {
+              "title": "agneau",
+              "count": 6
+            },
+            {
+              "title": "presentation",
+              "count": 5
+            },
+            {
+              "title": "culture",
+              "count": 5
+            },
+            {
+              "title": "happiness",
+              "count": 5
+            }
+          ],
+          "additionalInfo": {
+            "From the business": [
+              {
+                "Identifies as women-owned": true
+              }
+            ],
+            "Service options": [
+              {
+                "Outdoor seating": true
+              },
+              {
+                "No-contact delivery": true
+              },
+              {
+                "Delivery": true
+              },
+              {
+                "Onsite services": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Great coffee": true
+              },
+              {
+                "Great dessert": true
+              },
+              {
+                "Rooftop seating": true
+              },
+              {
+                "Sports": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible seating": true
+              },
+              {
+                "Assistive hearing loop": false
+              }
+            ],
+            "Offerings": [
+              {
+                "Alcohol": true
+              },
+              {
+                "All you can eat": true
+              },
+              {
+                "Beer": true
+              },
+              {
+                "Cocktails": true
+              },
+              {
+                "Coffee": true
+              },
+              {
+                "Hard liquor": true
+              },
+              {
+                "Small plates": true
+              },
+              {
+                "Vegetarian options": true
+              },
+              {
+                "Wine": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Catering": true
+              },
+              {
+                "Counter service": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Seating": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Bar onsite": true
+              },
+              {
+                "Gender-neutral restroom": true
+              },
+              {
+                "Restroom": true
+              },
+              {
+                "Wi-Fi": true
+              },
+              {
+                "Free Wi-Fi": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Family-friendly": true
+              },
+              {
+                "Groups": true
+              },
+              {
+                "LGBTQ+ friendly": true
+              },
+              {
+                "Tourists": true
+              },
+              {
+                "Transgender safespace": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              },
+              {
+                "Has changing table(s)": true
+              },
+              {
+                "High chairs": true
+              },
+              {
+                "Kids' menu": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking garage": true
+              },
+              {
+                "On-site parking": true
+              },
+              {
+                "Paid parking garage": true
+              },
+              {
+                "Paid parking lot": true
+              },
+              {
+                "Usually plenty of parking": true
+              },
+              {
+                "Valet parking": true
+              }
+            ],
+            "Pets": [
+              {
+                "Dogs allowed": true
+              },
+              {
+                "Dogs allowed inside": true
+              },
+              {
+                "Dogs allowed outside": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Naans%20%26%20Curries%20-%20An%20Ethnic%20Indian%20Restaurant&query_place_id=ChIJc747YcTloI8RExTJLbTKwx4",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.0709878894178,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 1,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/p/AF1QipOr-rXd6tr_JG9fu4Js5yhHOM-TOuhVZG4E_z7I=w408-h544-k-no",
+          "kgmid": "/g/11t6bp03z8"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Restaurante Alice",
+          "price": "$",
+          "categoryName": "Restaurant",
+          "address": "XW45+VF2, San José, San Juan, Cuatro Reinas, Costa Rica",
+          "neighborhood": "Cuatro Reinas",
+          "street": "XW45+VF2",
+          "city": "San Juan",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 9.9571475,
+            "lng": -84.0913621
+          },
+          "totalScore": 4.7,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJX7ItXbfkoI8Riwvq7q68nz8",
+          "categories": [
+            "Restaurant"
+          ],
+          "fid": "0x8fa0e4b75d2db25f:0x3f9fbcaeeeea0b8b",
+          "cid": "4584590405205101451",
+          "reviewsCount": 63,
+          "imagesCount": 164,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.573Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11:30 AM to 8:30 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11:30 AM to 8:30 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11:30 AM to 8:30 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11:30 AM to 8:30 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11 AM to 9 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11 AM to 9 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11:30 AM to 8:30 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Great beer selection": true
+              },
+              {
+                "Great cocktails": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible parking lot": false
+              }
+            ],
+            "Offerings": [
+              {
+                "Alcohol": true
+              },
+              {
+                "Beer": true
+              },
+              {
+                "Cocktails": true
+              },
+              {
+                "Hard liquor": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Bar onsite": true
+              },
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Restaurante%20Alice&query_place_id=ChIJX7ItXbfkoI8Riwvq7q68nz8",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 1,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAwepvt7DxlVdutmOObLE2DH_GtEAGDXT4bGh8nFQJcKnYT_2Hj8_NdEw4zL4R08Y1r9NbuQ3HcUBTiVY_GkIJczETDt0smCz9inb83rvO38GgkA-7nG-Mxa8OMjxsl_e7a_VolYPY=w408-h725-k-no",
+          "kgmid": "/g/11bx0dv8b1"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Soda Almendros",
+          "price": "₡2,000–4,000",
+          "categoryName": "Restaurant",
+          "address": "XW58+H22, Av. 55, San José, San Juan, Costa Rica",
+          "neighborhood": null,
+          "street": "XW58+H22, Av. 55",
+          "city": "San Juan",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 2235 4194",
+          "phoneUnformatted": "+50622354194",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 9.9588889,
+            "lng": -84.085
+          },
+          "totalScore": 4.4,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJ65PKLr_koI8R9lIACMw3zkE",
+          "categories": [
+            "Restaurant"
+          ],
+          "fid": "0x8fa0e4bf2eca93eb:0x41ce37cc080052f6",
+          "cid": "4741788807114806006",
+          "reviewsCount": 425,
+          "imagesCount": 34,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.573Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "No-contact delivery": true
+              },
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Great coffee": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": false
+              },
+              {
+                "Wheelchair accessible parking lot": false
+              }
+            ],
+            "Offerings": [
+              {
+                "Coffee": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": false
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              },
+              {
+                "Kids' menu": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Soda%20Almendros&query_place_id=ChIJ65PKLr_koI8R9lIACMw3zkE",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 2,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAweox7kYvGgO0rFfOCpQOTmU5c6DjHdKDh18BWxibFiR_JQtx5f6F8T4u3HLHe6UtvI355hyxHpj-hTg512IiHl_5ecQMHoasyP8x_OZZc0oirNP3WNYuKq-NwBulRH3VkUji-4mrtw=w408-h544-k-no",
+          "kgmid": "/g/1ptz0lss_"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Soda Pilar",
+          "price": "₡2,000–4,000",
+          "categoryName": "Restaurant",
+          "address": "XW47+CX6, San José Province, Tibas, Costa Rica",
+          "neighborhood": null,
+          "street": "XW47+CX6",
+          "city": "Tibas",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 2297 3789",
+          "phoneUnformatted": "+50622973789",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 9.9560417,
+            "lng": -84.0851049
+          },
+          "totalScore": 4.6,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJ_7BZfADloI8R_74-Gxt8o7o",
+          "categories": [
+            "Restaurant"
+          ],
+          "fid": "0x8fa0e5007c59b0ff:0xbaa37c1b1b3ebeff",
+          "cid": "13448729368121491199",
+          "reviewsCount": 151,
+          "imagesCount": 51,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.574Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "8 PM to 12 AM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "8 PM to 12 AM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "8 PM to 12 AM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "8 PM to 12 AM"
+            },
+            {
+              "day": "Friday",
+              "hours": "8 PM to 12 AM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "8 AM to 7 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Takeout": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Coffee": true
+              },
+              {
+                "Quick bite": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Quiet": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Soda%20Pilar&query_place_id=ChIJ_7BZfADloI8R_74-Gxt8o7o",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 3,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAwep-ZvvluiD0ZwsBpiwijwxTMRC6AZcnWDdFfVrCAaK0exr-yv3PR4gAtpo2loYm0Rl786TKDMSEAQvQCc-QgVRXx4gMGPy7NvUDphuCiMJiRXvwKePrr4VGW2HBBhoBG5d-uCtw=w408-h488-k-no",
+          "kgmid": "/g/11xgkzrykb"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Caribbean Delights • Tibás",
+          "price": "₡5,000–10,000",
+          "categoryName": "Caribbean restaurant",
+          "address": "Plaza del Valle, San José, San Juan, El Valle, 11301, Costa Rica",
+          "neighborhood": "El Valle",
+          "street": "Plaza del Valle",
+          "city": "San Juan",
+          "postalCode": "11301",
+          "state": "San José Province",
+          "countryCode": "CR",
+          "website": "https://www.carideli.com/",
+          "phone": "+506 8455 5120",
+          "phoneUnformatted": "+50684555120",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.9586439,
+            "lng": -84.078065
+          },
+          "totalScore": 4.8,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJ15V2wuGdoY8RDv2es1tCFR8",
+          "categories": [
+            "Caribbean restaurant",
+            "Delivery Restaurant"
+          ],
+          "fid": "0x8fa19de1c27695d7:0x1f15425bb39efd0e",
+          "cid": "2239769351309688078",
+          "reviewsCount": 317,
+          "imagesCount": 98,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.574Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11 AM to 7 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11 AM to 7 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11 AM to 7 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11 AM to 7 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11 AM to 7 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "10 AM to 7 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11 AM to 6 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Outdoor seating": true
+              },
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Rooftop seating": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible seating": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Coffee": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              },
+              {
+                "Vegetarian options": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Catering": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Seating": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Gender-neutral restroom": true
+              },
+              {
+                "Restroom": true
+              },
+              {
+                "Wi-Fi": true
+              },
+              {
+                "Free Wi-Fi": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Family-friendly": true
+              },
+              {
+                "Groups": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              },
+              {
+                "Kids' menu": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking lot": true
+              },
+              {
+                "Free street parking": true
+              },
+              {
+                "Usually plenty of parking": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Caribbean%20Delights%20%E2%80%A2%20Tib%C3%A1s&query_place_id=ChIJ15V2wuGdoY8RDv2es1tCFR8",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 4,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqvYTVt9pvqPWGA8ffrlV5LNkv8xiWOA55WkhyGz3AudXcbKqz2IGfnuFgOAwaGSXEXi0iw5rg77Pkxjp1v6VxWvw-UInAXfmdhHBax3FqJiL0xJu2mr-Xr9qzTaTVyb8o4xohOPymKSWmB=w408-h544-k-no",
+          "kgmid": "/g/1ptw1djfq"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Restaurante Zonni",
+          "price": "₡5,000–10,000",
+          "categoryName": "Chinese restaurant",
+          "address": "Detrás de la pops del cruce de Llorente, Tibás, San José, Tibás, Costa Rica",
+          "neighborhood": "Santa Monica",
+          "street": "Detrás de la pops del cruce de Llorente, Tibás",
+          "city": "Tibas",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "website": "https://www.instagram.com/restaurantezonni/",
+          "phone": "+506 2236 4513",
+          "phoneUnformatted": "+50622364513",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.952213,
+            "lng": -84.0782923
+          },
+          "totalScore": 4.7,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJay6IsJfkoI8RqRP9uloBbOI",
+          "categories": [
+            "Chinese restaurant"
+          ],
+          "fid": "0x8fa0e497b0882e6b:0xe26c015abafd13a9",
+          "cid": "16315417039252296617",
+          "reviewsCount": 357,
+          "imagesCount": 72,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.574Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "Closed"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11 AM to 3 PM, 5 to 9 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11 AM to 3 PM, 5 to 9 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11 AM to 3 PM, 5 to 9 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11 AM to 9:30 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11 AM to 9:30 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11 AM to 8 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "No-contact delivery": true
+              },
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Great dessert": true
+              },
+              {
+                "Great tea selection": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible parking lot": false
+              }
+            ],
+            "Offerings": [
+              {
+                "Alcohol": true
+              },
+              {
+                "Beer": true
+              },
+              {
+                "Cocktails": true
+              },
+              {
+                "Coffee": true
+              },
+              {
+                "Hard liquor": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              },
+              {
+                "Wine": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Seating": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Restroom": true
+              },
+              {
+                "Wi-Fi": true
+              },
+              {
+                "Free Wi-Fi": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              },
+              {
+                "Kids' menu": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking lot": true
+              },
+              {
+                "Free street parking": true
+              },
+              {
+                "Usually somewhat difficult to find a space": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Restaurante%20Zonni&query_place_id=ChIJay6IsJfkoI8RqRP9uloBbOI",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 5,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAwepPvQaF1EHnFYcyDYraO-V_uES7SDSxoivUrbSs5euSqKRp-XP6b8fSr3aCHubCdTJidIMyHk3cupqvImgkwiPUPYci-DtYjPS4M4vtvRZ0WbF3lVn5BnhGRUwxtn-G-S7OFzL-=w408-h306-k-no",
+          "kgmid": "/g/11g_nfyq5"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Restaurante Pura Vida",
+          "price": "₡2,000–4,000",
+          "categoryName": "Restaurant",
+          "address": "XW7F+6CG, San José Province, San Juan, Versalles, Costa Rica",
+          "neighborhood": "Versalles",
+          "street": "XW7F+6CG",
+          "city": "San Juan",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 2236 7980",
+          "phoneUnformatted": "+50622367980",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 9.9630576,
+            "lng": -84.0764215
+          },
+          "totalScore": 4.5,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJhTW6E-vkoI8RPF12sq5ju9Q",
+          "categories": [
+            "Restaurant"
+          ],
+          "fid": "0x8fa0e4eb13ba3585:0xd4bb63aeb2765d3c",
+          "cid": "15328955358655175996",
+          "reviewsCount": 93,
+          "imagesCount": 82,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.574Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "Open 24 hours"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "Open 24 hours"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "Open 24 hours"
+            },
+            {
+              "day": "Thursday",
+              "hours": "Open 24 hours"
+            },
+            {
+              "day": "Friday",
+              "hours": "Open 24 hours"
+            },
+            {
+              "day": "Saturday",
+              "hours": "Open 24 hours"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Open 24 hours"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible seating": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Coffee": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking lot": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Restaurante%20Pura%20Vida&query_place_id=ChIJhTW6E-vkoI8RPF12sq5ju9Q",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 6,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAweq_DSZUceg_owuUKD66aTRdBuG12qOI3jHlostFQVzd_smwzIVnSSKT3VnySagF8vthhz39-yn-U7glKugxMuAsTWH2JicUSumvSSaLZp9KDlYpXRUViAqQFiNZvwa4fkExorU6=w408-h306-k-no",
+          "kgmid": "/g/11gb3m8d6v"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Canton • Tibás",
+          "price": "₡5,000–10,000",
+          "categoryName": "Chinese restaurant",
+          "address": "Calle Central, San José Province, Tibas, Costa Rica",
+          "neighborhood": null,
+          "street": "Calle Central",
+          "city": "Tibas",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "website": "https://canton.cr/",
+          "phone": "+506 7291 5974",
+          "phoneUnformatted": "+50672915974",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.9609039,
+            "lng": -84.0785884
+          },
+          "totalScore": 4.3,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJBZvZM5XkoI8RgIpBaJLA48g",
+          "categories": [
+            "Chinese restaurant"
+          ],
+          "fid": "0x8fa0e49533d99b05:0xc8e3c09268418a80",
+          "cid": "14475625362345790080",
+          "reviewsCount": 1599,
+          "imagesCount": 389,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.574Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11 AM to 10 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11 AM to 10 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "No-contact delivery": true
+              },
+              {
+                "Delivery": true
+              },
+              {
+                "Drive-through": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible seating": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Table service": false
+              }
+            ],
+            "Amenities": [
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "College students": true
+              },
+              {
+                "Groups": true
+              },
+              {
+                "Tourists": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": false
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking lot": true
+              },
+              {
+                "Free street parking": true
+              },
+              {
+                "Usually somewhat difficult to find a space": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Canton%20%E2%80%A2%20Tib%C3%A1s&query_place_id=ChIJBZvZM5XkoI8RgIpBaJLA48g",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 7,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqNqzCYGdCRUvK5rXJWNgLOG_5jhTFO66jlIt7Ib6zP9eDFSe0Xg2mMuk-1GuPtCoNdNWkE0OaBgrqZrUmKv5BLJi3UwLKBAoJWtCx01bNcEEtuA0uXq28s1Jlfa2-49CWXOFi3=w408-h306-k-no",
+          "kgmid": "/g/11g9w37zrc"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Soda Karina",
+          "price": null,
+          "categoryName": "Restaurant",
+          "address": "XW78+QV9, Provincia de Alajuela, San Pedro, San Jeronimo, Costa Rica",
+          "neighborhood": "San Jeronimo",
+          "street": "XW78+QV9",
+          "city": "San Pedro",
+          "postalCode": null,
+          "state": "Alajuela Province",
+          "countryCode": "CR",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 9.9644108,
+            "lng": -84.0827574
+          },
+          "totalScore": 4.4,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJt3L3qcHkoI8RKQvPptWPPUY",
+          "categories": [
+            "Restaurant"
+          ],
+          "fid": "0x8fa0e4c1a9f772b7:0x463d8fd5a6cf0b29",
+          "cid": "5061359704023698217",
+          "reviewsCount": 14,
+          "imagesCount": 2,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.574Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "9 AM to 8 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "9 AM to 8 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "9 AM to 8 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "9:30 AM to 9 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "9 AM to 8 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "9:30 AM to 9 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "4 to 8:30 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Great coffee": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Breakfast": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Coffee": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Breakfast": true
+              },
+              {
+                "Lunch": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              }
+            ],
+            "Payments": [
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Soda%20Karina&query_place_id=ChIJt3L3qcHkoI8RKQvPptWPPUY",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 8,
+          "isAdvertisement": false,
+          "imageUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=A4Y0ygsvnZaP66e1DInZ8w&cb_client=search.gws-prod.gps&w=408&h=240&yaw=231.39163&pitch=0&thumbfov=100",
+          "kgmid": "/g/11bzrl_nj9"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Hamburguesas Matute",
+          "price": "₡2,000–4,000",
+          "categoryName": "Fast food restaurant",
+          "address": "San José Province, San Juan, Santa Eduviges, Costa Rica",
+          "neighborhood": "Santa Eduviges",
+          "street": null,
+          "city": "San Juan",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 8714 4400",
+          "phoneUnformatted": "+50687144400",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.9587271,
+            "lng": -84.0792181
+          },
+          "totalScore": 4.8,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJyRHZ2JjloI8RX9seQcH5gfU",
+          "categories": [
+            "Fast food restaurant",
+            "Hamburger restaurant"
+          ],
+          "fid": "0x8fa0e598d8d911c9:0xf581f9c1411edb5f",
+          "cid": "17690695419704564575",
+          "reviewsCount": 46,
+          "imagesCount": 30,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.574Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "3 to 10 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "3 to 10 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "3 to 10 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "3 to 10 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "3 to 10 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "3 to 10 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Late-night food": true
+              },
+              {
+                "Quick bite": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Hamburguesas%20Matute&query_place_id=ChIJyRHZ2JjloI8RX9seQcH5gfU",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 9,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAwepe8xFyysyUCPa9r-5OPwLVQsEUDAz-aQAH5-M4YFeIWULo3uMXbhub1ifZMl63Qqxzy2-LaVevOdA7O_ojW-wiMmnjZNf-fPZWJjlVnfTgRVowf0UHA6u86IxSXdDgHEPR1B3BAQ=w408-h306-k-no",
+          "kgmid": "/g/11rsfzrr7w"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Super tacos tortas enyucados arroz con pollo",
+          "price": null,
+          "categoryName": "Fast food restaurant",
+          "address": "XW54+5PG, C. 30, San José, Cuatro Reinas, Costa Rica",
+          "neighborhood": "Cuatro Reinas",
+          "street": "XW54+5PG, C. 30",
+          "city": "San José",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 8464 6971",
+          "phoneUnformatted": "+50684646971",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 9.9579394,
+            "lng": -84.0931794
+          },
+          "totalScore": 4.6,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJ0SfcHLfkoI8RXPlvyoxMV60",
+          "categories": [
+            "Fast food restaurant"
+          ],
+          "fid": "0x8fa0e4b71cdc27d1:0xad574c8cca6ff95c",
+          "cid": "12490536259110828380",
+          "reviewsCount": 14,
+          "imagesCount": 1,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.575Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "10 AM to 9 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11 AM to 9 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11 AM to 9 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11 AM to 9 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "10 AM to 9 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11 AM to 9 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11 AM to 9 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Quick bite": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Lunch": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Payments": [
+              {
+                "Debit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Super%20tacos%20tortas%20enyucados%20arroz%20con%20pollo&query_place_id=ChIJ0SfcHLfkoI8RXPlvyoxMV60",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 10,
+          "isAdvertisement": false,
+          "imageUrl": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=MXDPIQOI-6Utaycee_K3EA&cb_client=search.gws-prod.gps&w=408&h=240&yaw=106.065&pitch=0&thumbfov=100",
+          "kgmid": "/g/11c6v49z24"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Mexicali",
+          "price": "₡6,000–8,000",
+          "categoryName": "Restaurant",
+          "address": "Av. 57, San José, San Juan, El Valle, Costa Rica",
+          "neighborhood": "El Valle",
+          "street": "Av. 57",
+          "city": "San Juan",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 2236 5146",
+          "phoneUnformatted": "+50622365146",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.9597291,
+            "lng": -84.0765409
+          },
+          "totalScore": 4.5,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJQTM36pTkoI8RDdUQGRf2bQI",
+          "categories": [
+            "Restaurant"
+          ],
+          "fid": "0x8fa0e494ea373341:0x26df6171910d50d",
+          "cid": "175066539602531597",
+          "reviewsCount": 254,
+          "imagesCount": 48,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.575Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "Closed"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible seating": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Coffee": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Mexicali&query_place_id=ChIJQTM36pTkoI8RDdUQGRf2bQI",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 11,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAwepPowqCC06iRNZYLJcpGRW3JW6NFsPvh-cl88RjekGq2VrG3K62ASBWC_rafUtMX9EQ3GlYFLmOkqv1BIDbnIqJgKEraIJo_LasYvHDNnSF2JErdMeXYj1-kZxEW6Vk1Tt2haSW=w408-h544-k-no",
+          "kgmid": "/g/11b6v271br"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Los Antojitos • Tibás",
+          "price": "₡10,000–15,000",
+          "categoryName": "Mexican restaurant",
+          "address": "Calle Central, San José Province, San Juan, El Valle, Costa Rica",
+          "neighborhood": "El Valle",
+          "street": "Calle Central",
+          "city": "San Juan",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "website": "http://www.restaurantelosantojitos.com/",
+          "phone": "+506 2235 3961",
+          "phoneUnformatted": "+50622353961",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.9558497,
+            "lng": -84.0782546
+          },
+          "totalScore": 4.2,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJXf9ld5bkoI8RMiLtYBR7G0w",
+          "categories": [
+            "Mexican restaurant",
+            "Family restaurant",
+            "Restaurant",
+            "Taco restaurant"
+          ],
+          "fid": "0x8fa0e4967765ff5d:0x4c1b7b1460ed2232",
+          "cid": "5484112298709426738",
+          "reviewsCount": 775,
+          "imagesCount": 190,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.575Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11:30 AM to 10 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11:30 AM to 10 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11:30 AM to 10 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11:30 AM to 10 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11:30 AM to 10 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11:30 AM to 10 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11:30 AM to 9 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Outdoor seating": true
+              },
+              {
+                "No-contact delivery": true
+              },
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Great beer selection": true
+              },
+              {
+                "Great cocktails": true
+              },
+              {
+                "Great coffee": true
+              },
+              {
+                "Great dessert": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              },
+              {
+                "Wheelchair accessible seating": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Alcohol": true
+              },
+              {
+                "Beer": true
+              },
+              {
+                "Cocktails": true
+              },
+              {
+                "Coffee": true
+              },
+              {
+                "Hard liquor": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              },
+              {
+                "Wine": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Seating": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Bar onsite": true
+              },
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              },
+              {
+                "Tourists": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              },
+              {
+                "Credit cards": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              },
+              {
+                "High chairs": true
+              },
+              {
+                "Kids' menu": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free parking lot": true
+              },
+              {
+                "Free street parking": true
+              },
+              {
+                "Usually plenty of parking": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Los%20Antojitos%20%E2%80%A2%20Tib%C3%A1s&query_place_id=ChIJXf9ld5bkoI8RMiLtYBR7G0w",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 12,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqk7__VgbL8GTZNmie8gEBIWT8poY_KaRt9mLrn4Dx9aMHDPB72ynA-e5VYKMibB4Avrs664vwxAYRyju0O4zpfdeD9FzMgg2tklhx7PsV4PZGxYMjqf3GHFua9uUMMLfjIoMjbAQ=w426-h240-k-no",
+          "kgmid": "/g/1tltnff8"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Adicora Restaurant & Bar",
+          "price": null,
+          "categoryName": "Restaurant",
+          "address": "Tibas, colima, cento comercial expreso tibas área del food curt San Jose Tibás, 11305, Costa Rica",
+          "neighborhood": null,
+          "street": "Tibas, colima, cento comercial expreso tibas área del food curt San Jose Tibás",
+          "city": "Tibas",
+          "postalCode": "11305",
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 6344 8861",
+          "phoneUnformatted": "+50663448861",
+          "claimThisBusiness": false,
+          "location": {
+            "lat": 9.9530675,
+            "lng": -84.0881596
+          },
+          "totalScore": 3.6,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJLXps_hXloI8RUiFc_OCqCyM",
+          "categories": [
+            "Restaurant"
+          ],
+          "fid": "0x8fa0e515fe6c7a2d:0x230baae0fc5c2152",
+          "cid": "2525299899354587474",
+          "reviewsCount": 8,
+          "imagesCount": 31,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.575Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11:30 AM to 9 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11:30 AM to 9:30 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11:30 AM to 9:30 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Drive-through": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Highlights": [
+              {
+                "Great coffee": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible restroom": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Alcohol": true
+              },
+              {
+                "Beer": true
+              },
+              {
+                "Cocktails": true
+              },
+              {
+                "Coffee": true
+              },
+              {
+                "Hard liquor": true
+              },
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Dessert": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Bar onsite": true
+              },
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Planning": [
+              {
+                "Accepts reservations": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Adicora%20Restaurant%20%26%20Bar&query_place_id=ChIJLXps_hXloI8RUiFc_OCqCyM",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 13,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAwer8NE5M85SiHOHn1vIcu8bZhQ6qmTnUqlweQ_cQICse38yVikHZTc9a1Pa-xo27p6ZMCOmMU5cOEHgJcdnxma3JeHLw9fP0yqnqnusMfvTkx4ueSlvFe3QiA1AcWVoH6NjPE0pYkQ=w426-h240-k-no",
+          "kgmid": "/g/11lt7r4jmy"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "title": "Comida China Restaurante",
+          "price": null,
+          "categoryName": "Chinese noodle restaurant",
+          "address": "XW54+JPC, Av. 55, San José, Cuatro Reinas, Costa Rica",
+          "neighborhood": "Cuatro Reinas",
+          "street": "XW54+JPC, Av. 55",
+          "city": "San José",
+          "postalCode": null,
+          "state": "San José Province",
+          "countryCode": "CR",
+          "phone": "+506 7299 0457",
+          "phoneUnformatted": "+50672990457",
+          "claimThisBusiness": true,
+          "location": {
+            "lat": 9.9590568,
+            "lng": -84.0932474
+          },
+          "totalScore": 4.2,
+          "permanentlyClosed": false,
+          "temporarilyClosed": false,
+          "placeId": "ChIJOXvvq7fkoI8R0p6c_HgVFCI",
+          "categories": [
+            "Chinese noodle restaurant"
+          ],
+          "fid": "0x8fa0e4b7abef7b39:0x22141578fc9c9ed2",
+          "cid": "2455611306202144466",
+          "reviewsCount": 94,
+          "imagesCount": 12,
+          "imageCategories": [],
+          "scrapedAt": "2026-03-02T23:20:08.575Z",
+          "googleFoodUrl": null,
+          "hotelAds": [],
+          "openingHours": [
+            {
+              "day": "Monday",
+              "hours": "11:15 AM to 10 PM"
+            },
+            {
+              "day": "Tuesday",
+              "hours": "11:15 AM to 10 PM"
+            },
+            {
+              "day": "Wednesday",
+              "hours": "11:15 AM to 10 PM"
+            },
+            {
+              "day": "Thursday",
+              "hours": "11:15 AM to 10 PM"
+            },
+            {
+              "day": "Friday",
+              "hours": "11:15 AM to 10 PM"
+            },
+            {
+              "day": "Saturday",
+              "hours": "11:15 AM to 10 PM"
+            },
+            {
+              "day": "Sunday",
+              "hours": "11:15 AM to 10 PM"
+            }
+          ],
+          "peopleAlsoSearch": [],
+          "placesTags": [],
+          "reviewsTags": [],
+          "additionalInfo": {
+            "Service options": [
+              {
+                "Delivery": true
+              },
+              {
+                "Takeout": true
+              },
+              {
+                "Dine-in": true
+              }
+            ],
+            "Popular for": [
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Solo dining": true
+              }
+            ],
+            "Accessibility": [
+              {
+                "Wheelchair accessible entrance": true
+              },
+              {
+                "Wheelchair accessible parking lot": true
+              },
+              {
+                "Wheelchair accessible restroom": true
+              }
+            ],
+            "Offerings": [
+              {
+                "Quick bite": true
+              },
+              {
+                "Small plates": true
+              }
+            ],
+            "Dining options": [
+              {
+                "Brunch": true
+              },
+              {
+                "Lunch": true
+              },
+              {
+                "Dinner": true
+              },
+              {
+                "Table service": true
+              }
+            ],
+            "Amenities": [
+              {
+                "Restroom": true
+              }
+            ],
+            "Atmosphere": [
+              {
+                "Casual": true
+              },
+              {
+                "Cozy": true
+              },
+              {
+                "Quiet": true
+              },
+              {
+                "Trendy": true
+              }
+            ],
+            "Crowd": [
+              {
+                "Groups": true
+              }
+            ],
+            "Payments": [
+              {
+                "Credit cards": true
+              },
+              {
+                "Debit cards": true
+              },
+              {
+                "NFC mobile payments": true
+              }
+            ],
+            "Children": [
+              {
+                "Good for kids": true
+              }
+            ],
+            "Parking": [
+              {
+                "Free street parking": true
+              }
+            ]
+          },
+          "gasPrices": [],
+          "url": "https://www.google.com/maps/search/?api=1&query=Comida%20China%20Restaurante&query_place_id=ChIJOXvvq7fkoI8R0p6c_HgVFCI",
+          "searchPageUrl": "https://www.google.com/maps/search/restaurants/@9.957930845246073,-84.08816851058218,16z?hl=en",
+          "searchString": "restaurants",
+          "language": "en",
+          "rank": 14,
+          "isAdvertisement": false,
+          "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHVAweoVZC8Sm-5gcDLLoS2Oq2abkzfU19mNKZ0HAyts5fueEThNPSz3oPsV-ZJ54DlC5HySuqoRVsryaobfDJmkCDB8a5cN1sSUxBruaJgvB--SXDmCFhGaNpi0xajIfqN22liw7qge=w408-h306-k-no",
+          "kgmid": "/g/11fx7pb2vc"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Leer queries pendientes": [
+      {
+        "json": {
+          "row_number": 2,
+          "Query": "restaurants",
+          "Location": "San Jose, Costa Rica",
+          "Status": false,
+          "col_4": "",
+          "col_5": "",
+          "col_6": "",
+          "col_7": "",
+          "col_8": "You can make a copy of this sheet and use your google sheet - if you need help you can reach out to nchoudhary110792@gmail.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Leer queries pendientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer información de contacto": {
+      "main": [
+        [
+          {
+            "node": "Guardar información de contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar como terminado": {
+      "main": [
+        [
+          {
+            "node": "Procesamiento por lotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empezar scraping con Apify": {
+      "main": [
+        [
+          {
+            "node": "Esperar que el trabajo termine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar que el trabajo termine": {
+      "main": [
+        [
+          {
+            "node": "Revisar estado del scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar estado del scraping": {
+      "main": [
+        [
+          {
+            "node": "Bucle hasta completar scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bucle hasta completar scraping": {
+      "main": [
+        [
+          {
+            "node": "Esperar que el trabajo termine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Obtener resultados del scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener resultados del scraping": {
+      "main": [
+        [
+          {
+            "node": "Guardar datos encontrados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer queries pendientes": {
+      "main": [
+        [
+          {
+            "node": "Empezar scraping con Apify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar datos encontrados": {
+      "main": [
+        [
+          {
+            "node": "Filtrar resultados con sitio web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesamiento por lotes": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Scraping del sitio web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar resultados con sitio web": {
+      "main": [
+        [
+          {
+            "node": "Procesamiento por lotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraping del sitio web": {
+      "main": [
+        [
+          {
+            "node": "Extraer información de contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar información de contacto": {
+      "main": [
+        [
+          {
+            "node": "Marcar como terminado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c68833d0-457b-4b8f-ab57-70ab4d3e3fe0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8b1efddd52ba851d4d9b0653ca505f27c13da4dadf06e758dd070e0ef6d5d64"
+  },
+  "id": "sKTZhrtOIw3jMTEb",
+  "tags": []
+}
