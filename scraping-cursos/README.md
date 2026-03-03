@@ -16,7 +16,7 @@ Este proyecto combina scraping, procesamiento estructurado con LLMs, automatizac
 
 ---
 
-🔌 Tecnologías integradas
+## 🔌 Tecnologías integradas
 - n8n (orquestador)
 - Google Sheets (fuente y persistencia)
 - HTTP Request (scraping inicial)
@@ -26,7 +26,7 @@ Este proyecto combina scraping, procesamiento estructurado con LLMs, automatizac
 
 ---
 
-⚙️ Arquitectura
+## ⚙️ Arquitectura
 - Scraping multi-etapa
 - Orquestación con LLMs
 - Uso de Output Parsers estructurados
