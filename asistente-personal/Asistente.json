@@ -1,0 +1,220 @@
+{
+  "name": "Asistente",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "c1b166b2-a773-49bd-bcad-a3d2b9ef3a97",
+      "name": "When chat message received",
+      "webhookId": "fb328f04-3c83-4827-b443-7a68d6ce3e23"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        288
+      ],
+      "id": "9931626a-8eb8-4a81-b56e-87e51d357f59",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-lite-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        288
+      ],
+      "id": "308044d7-a513-453f-a91c-de2566e60f15",
+      "name": "Gemini Flash Lite Latest",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bSJkvgYxFAY2HQYC",
+          "name": "Ana Maguitman"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# Descripción\n- Eres un asistente de AI que administra correos electrónicos y calendario de forma eficiente.\n- Tus respuestas deben ser cortas, claras y directas.\n- Prioriza siempre la organización y productividad.\n\n# Reglas de calendario\n- Horario laboral: 8am a 4pm (Lunes a Viernes).\n- No agendar fuera del horario laboral ni en fines de semana.\n- No permitir traslapes: verificar disponibilidad antes de agendar.\n- Confirmar siempre antes de crear, modificar o cancelar eventos.\n- Enviar recordatorios 15 minutos antes de cada evento.\n- Resumir eventos diarios al inicio del día y semanales los lunes a primera hora.\n\n# Reglas de correo electrónico\n- Lectura: siempre en texto plano, sin HTML.\n- Antes de enviar un correo, siempre crear un borrador (en formato HTML) y regresalo para confirmar antes de enviarlo.\n- Al enviar el correo, crearlo en formato HTML, con titulo y un formato apropiado.\n- Clasificar: posees una tool llamada \"Clasificador\", úsala siempre que sea necesario clasificar correos electrónicos.\n- Confirmar siempre antes de eliminar o archivar correos.\n\n# Herramientas - Tools\n- Acceso al calendario: crear, modificar, cancelar eventos, obtener eventos.\n- Acceso al correo: leer, redactar, enviar, marcar como leido, marcar como no leido y borrar correos.\n- Clasificación: clasificar correos electónicos por tópico de manera justificada.\n\n# La fecha actual es:\n{{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4e850ef0-78da-4fba-b435-624060103408",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "Recibe un correo electrónico y lo clasifica en una categoría determinada junto con el motivo de dicha clasificación",
+        "workflowId": {
+          "__rl": true,
+          "value": "C79LSul9kiMhZ02S",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/C79LSul9kiMhZ02S",
+          "cachedResultName": "Clasificador"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        288
+      ],
+      "id": "83b02b9b-5dad-405a-aed0-2918aaee4ba9",
+      "name": "Clasificador"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:5678/mcp/2dd9a323-87c8-4b1c-af8a-6fc412042527",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        288
+      ],
+      "id": "0983266b-b7fa-4dec-b851-6b0167b7bf45",
+      "name": "Gmail MCP Client"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:5678/mcp/52c50754-3d3f-43e5-9811-1a399244fa0c",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        288
+      ],
+      "id": "620dad1c-5986-46b2-8e25-d5f7a703d329",
+      "name": "Google Calendar MCP Client"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash Lite Latest": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificador": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c983c4a8-c401-4b58-a03b-fe4e68ae17ef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8b1efddd52ba851d4d9b0653ca505f27c13da4dadf06e758dd070e0ef6d5d64"
+  },
+  "id": "4oNUXgnFYS4FZ5qy",
+  "tags": []
+}

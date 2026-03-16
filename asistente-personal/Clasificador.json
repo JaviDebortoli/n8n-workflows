@@ -1,0 +1,164 @@
+{
+  "name": "Clasificador",
+  "nodes": [
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"categoría\": \"Solicitud de reunión\",\n  \"motivo\": \"En el correo electrónico se solicita concertar una reunión para mañana.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        224
+      ],
+      "id": "40d45144-7d8d-48e9-bc53-eb8e61b9ad96",
+      "name": "Convertir en JSON"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-lite-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        224
+      ],
+      "id": "4cf33199-0a97-42f5-a5ab-d0ef3ff5b32f",
+      "name": "Gemini Flash Lite Latest",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bSJkvgYxFAY2HQYC",
+          "name": "Ana Maguitman"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"email\": \"texto completo del correo\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "89a025c5-548f-4d5b-852f-631ce0514408",
+      "name": "Recibir mail"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Correo Electrónico:\n{{ $json.email }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=# Descipción\nEres un sistema de clasificación de correos electrónicos.\n\n# Tarea\nClasifica el correo electrónico en una de las siguientes categorías:\n- urgente\n- solicitud_de_reunión\n- requiere_respuesta\n- informativo\n- spam\n\n# Formato de salida\nDevuelve ÚNICAMENTE un objeto JSON con este formato:\n\n{\n    \"categoría\": \"...\",\n    \"motivo\": \"...\"\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        416,
+        0
+      ],
+      "id": "7af4da6b-98d8-4ac2-8f58-a9c66325b33e",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94b765ef-1cd6-48f3-af02-8710e0f27da3",
+              "name": "categoría",
+              "value": "={{ $json.output['categoría'] }}",
+              "type": "string"
+            },
+            {
+              "id": "01e1a615-7141-4cfe-9c7e-9fccf89735cf",
+              "name": "motivo",
+              "value": "={{ $json.output.motivo }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        0
+      ],
+      "id": "7492a1d0-952e-4d65-acf8-978dadb50480",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Convertir en JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash Lite Latest": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recibir mail": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d6593055-f2cd-4d75-a76f-51e2a2860363",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8b1efddd52ba851d4d9b0653ca505f27c13da4dadf06e758dd070e0ef6d5d64"
+  },
+  "id": "C79LSul9kiMhZ02S",
+  "tags": []
+}

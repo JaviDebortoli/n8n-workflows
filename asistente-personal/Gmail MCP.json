@@ -1,0 +1,240 @@
+{
+  "name": "Gmail MCP",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "2dd9a323-87c8-4b1c-af8a-6fc412042527"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4f0b973b-964f-455d-b547-9f111ec5eda8",
+      "name": "Gmail MCP Server",
+      "webhookId": "2dd9a323-87c8-4b1c-af8a-6fc412042527"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "html",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        224
+      ],
+      "id": "4f73f685-a5f6-4200-b485-0f6e67b1c3a9",
+      "name": "crear_borrador",
+      "webhookId": "7513fb5a-666f-445d-8929-2f8d612da39c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        224
+      ],
+      "id": "b6a76414-8041-49ad-bdcc-00cfde28f9da",
+      "name": "enviar_mail",
+      "webhookId": "7513fb5a-666f-445d-8929-2f8d612da39c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "filters": {
+          "includeSpamTrash": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Include_Spam_and_Trash', ``, 'boolean') }}",
+          "labelIds": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Label_Names_or_IDs', ``, 'string') }}",
+          "receivedAfter": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Received_After', ``, 'string') }}",
+          "receivedBefore": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Received_Before', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        64,
+        224
+      ],
+      "id": "c704dfab-526b-48bc-97ee-3a2346f63ddc",
+      "name": "obtener_mails",
+      "webhookId": "7513fb5a-666f-445d-8929-2f8d612da39c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        224
+      ],
+      "id": "28d8d4cf-54cc-47d4-9adc-9991112ad885",
+      "name": "marcar_leido",
+      "webhookId": "cbafcfac-65fb-485a-912f-f2fa553bd1a4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsUnread",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        224
+      ],
+      "id": "0c29d03b-87a4-4037-9c83-7025ccc87947",
+      "name": "marcar_no_leido",
+      "webhookId": "87aa5ba0-b577-44a0-bc88-f8ea25ba39ae",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        224
+      ],
+      "id": "bbaf1c3c-8a1a-41dc-9620-be4dbaf50054",
+      "name": "borrar_mail",
+      "webhookId": "821a14e2-9d14-4534-a1b5-e3baebc2fec2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cuwYLJjnXZA68YY4",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "crear_borrador": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enviar_mail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener_mails": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "marcar_leido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "marcar_no_leido": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "borrar_mail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4b3f9a92-fe91-4685-ab78-3c31a2cdce32",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8b1efddd52ba851d4d9b0653ca505f27c13da4dadf06e758dd070e0ef6d5d64"
+  },
+  "id": "fX17KxdXpyVUz2i1",
+  "tags": []
+}

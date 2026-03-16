@@ -1,0 +1,210 @@
+{
+  "name": "Calendar MCP",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "b350774115bbb681fb97f94278af943fbf9312f7ffa6dd83618d1acc3c5b8989@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "n8n-DevTest"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "updateFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Location', ``, 'string') }}",
+          "repeatHowManyTimes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Repeat_How_Many_Times_', ``, 'number') }}",
+          "repeatUntil": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Repeat_Until', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        240
+      ],
+      "id": "bb4f97b8-0c25-4296-9880-6b2b93665271",
+      "name": "actualizar_evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "WGYBLMPEqUw1tIDZ",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "b350774115bbb681fb97f94278af943fbf9312f7ffa6dd83618d1acc3c5b8989@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "n8n-DevTest"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Location', ``, 'string') }}",
+          "repeatHowManyTimes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Repeat_How_Many_Times_', ``, 'number') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        240
+      ],
+      "id": "20c1a363-d8b1-41a1-9658-3d78f7a62c63",
+      "name": "quitar_evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "WGYBLMPEqUw1tIDZ",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "b350774115bbb681fb97f94278af943fbf9312f7ffa6dd83618d1acc3c5b8989@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "n8n-DevTest"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        240
+      ],
+      "id": "9d12ef14-23f7-4919-9b95-7c7ff6bced95",
+      "name": "obtener_eventos",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "WGYBLMPEqUw1tIDZ",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "b350774115bbb681fb97f94278af943fbf9312f7ffa6dd83618d1acc3c5b8989@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "n8n-DevTest"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Location', ``, 'string') }}",
+          "repeatHowManyTimes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Repeat_How_Many_Times_', ``, 'number') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        240
+      ],
+      "id": "01be12f2-6964-4660-ad19-380331e99539",
+      "name": "crear_evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "WGYBLMPEqUw1tIDZ",
+          "name": "javidebortoli@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "52c50754-3d3f-43e5-9811-1a399244fa0c"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "48772c03-68c1-4f67-bc4d-65bef7a38b26",
+      "name": "Calendar MCP Server",
+      "webhookId": "52c50754-3d3f-43e5-9811-1a399244fa0c"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "actualizar_evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "quitar_evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener_eventos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "crear_evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a8546bd4-c9e4-4bcf-858d-f42a3b62aa56",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c8b1efddd52ba851d4d9b0653ca505f27c13da4dadf06e758dd070e0ef6d5d64"
+  },
+  "id": "lbhaQgK7nTs7a7AQ",
+  "tags": []
+}
