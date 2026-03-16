@@ -75,4 +75,4 @@ Este repositorio forma parte de mi portfolio técnico como desarrollador orienta
 ---
 
 ## ✍️ Autor
-Desarrollado por Javier M. Debórtoli como práctica para el aprendizaje de n8n, IA, flujos de trabajo y automatizaciones.
+Desarrollado por Javier M. Debórtoli como práctica para el aprendizaje de n8n, IA, RAG, MCP, flujos de trabajo y automatizaciones.
